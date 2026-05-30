@@ -1,5 +1,5 @@
-const express = require('express');
-const app = express();
+import express from 'express';
+const app = express(); 
 
 // Use an environment variable for the port, fallback to 3000 if not defined
 const PORT = process.env.PORT || 3000;
@@ -16,5 +16,5 @@ app.get('/', (req, res) => {
 
 app.listen(PORT, () => {
   // Check your terminal window right after running the server to see this print!
-  console.log(`[SERVER] Distribution engine live on port ${PORT}`);
+  console.log(`Distribution engine live on port ${PORT}`);
 });
