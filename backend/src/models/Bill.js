@@ -62,7 +62,7 @@ billSchema.pre("save", function (next) {
     // Calculate total bill value: sum up (quantity * rateSnapShot) for all rows
     this.totalBillValue = this.items.reduce((sum, item) => {
       return sum + (item.quantity * item.rateSnapShot);
-    }, 0);
+    }, 0);                                                  //TO BE NOTED
   } else {
     this.totalBillValue = 0;
   }
