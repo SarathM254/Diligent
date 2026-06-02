@@ -26,6 +26,10 @@ const userSchema = new mongoose.Schema(
         // Enforces that if the role is 'salesman', this field CANNOT be empty
         return this.role === "salesman";
       }
+    },
+    broughtForwardDebt: {
+      type: Number,
+      default: 0 // Starts at 0 for all users
     }
   },
   {
