@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import './App.css';
 import SalesmanPortal from './components/salesman/SalesmanPortal';
+import OwnerPortal from './components/owner/OwnerPortal';
+import OperatorPortal from './components/operator/OperatorPortal';
 
 export default function App() {
   const [role, setRole] = useState('none'); // 'none', 'owner', 'operator', 'salesman'
@@ -59,6 +61,14 @@ export default function App() {
       {role === 'salesman' ? (
         <main className="flex-1 w-full pb-4">
           <SalesmanPortal />
+        </main>
+      ) : role === 'owner' ? (
+        <main className="flex-1 w-full pb-4">
+          <OwnerPortal />
+        </main>
+      ) : role === 'operator' ? (
+        <main className="flex-1 w-full pb-4">
+          <OperatorPortal />
         </main>
       ) : (
         <main className="flex-1 bg-white shadow-md rounded-xl p-6 flex flex-col items-center justify-center">
