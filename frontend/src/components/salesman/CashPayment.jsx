@@ -3,7 +3,7 @@ import api from '../../utils/api';
 
 const DENOMINATIONS = [500, 200, 100, 50, 20, 10];
 
-export default function CashPayment() {
+export default function CashPayment({ activeUser }) {
   const [cashCounts, setCashCounts] = useState({});
   const [phonePeAmount, setPhonePeAmount] = useState('');
 
@@ -23,6 +23,7 @@ export default function CashPayment() {
   const handleSubmit = async () => {
     try {
       await api.post('/payments', {
+        salesmanId: activeUser?._id,
         cashBreakdown: cashCounts,
         totalHandCash,
         phonePeAmount: Number(phonePeAmount) || 0,

@@ -1,20 +1,21 @@
 import { useState, useEffect } from 'react';
 import api from '../../utils/api';
 
-export default function SalesmanProfile() {
-  const [profile, setProfile] = useState(null);
+export default function SalesmanProfile({ activeUser }) {
+  const [profile, setProfile] = useState(activeUser || null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     api.get('/users/salesmen')
       .then(res => {
         if (res.data && res.data.length > 0) {
-          setProfile(res.data[0]);
+          const userProfile = res.data.find(u => u._id === activeUser?._id) || activeUser;
+          setProfile(userProfile);
         }
       })
       .catch(err => console.error('Error fetching salesmen:', err))
       .finally(() => setLoading(false));
-  }, []);
+  }, [activeUser]);
 
   if (loading) return <div className="p-8 text-center text-gray-500 animate-pulse">Loading profile...</div>;
   if (!profile) return <div className="p-8 text-center text-gray-500 bg-white rounded-2xl shadow-sm border border-gray-100 mb-4">No salesman profile found.</div>;
@@ -32,8 +33,8 @@ export default function SalesmanProfile() {
       </div>
       <div className="bg-gray-50 p-5 rounded-xl border border-gray-100 flex justify-between items-center shadow-inner">
         <span className="text-gray-600 font-bold uppercase tracking-wider text-xs">Brought Forward (BF)</span>
-        <span className={`text-2xl font-extrabold ${profile.bfDebt > 0 ? 'text-red-500' : 'text-emerald-500'}`}>
-          ₹{profile.bfDebt || 0}
+        <span className={`text-2xl font-extrabold ${(profile.broughtForwardDebt || 0) > 0 ? 'text-red-500' : 'text-emerald-500'}`}>
+          ₹{profile.broughtForwardDebt || 0}
         </span>
       </div>
     </div>

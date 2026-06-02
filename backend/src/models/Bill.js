@@ -7,6 +7,10 @@ const billItemSchema = new mongoose.Schema({
     ref: "Brand",
     required: true
   },
+  brandName: {
+    type: String,
+    required: true
+  },
   quantity: {
     type: Number,
     required: true,

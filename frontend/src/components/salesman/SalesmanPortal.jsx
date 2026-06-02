@@ -3,7 +3,7 @@ import SalesmanProfile from './SalesmanProfile';
 import BillSubmission from './BillSubmission';
 import CashPayment from './CashPayment';
 
-export default function SalesmanPortal() {
+export default function SalesmanPortal({ activeUser }) {
   const [activeTab, setActiveTab] = useState('profile');
 
   return (
@@ -32,9 +32,9 @@ export default function SalesmanPortal() {
 
       {/* Tab Content */}
       <div className="flex-1 w-full pb-6">
-        {activeTab === 'profile' && <SalesmanProfile />}
-        {activeTab === 'bill' && <BillSubmission />}
-        {activeTab === 'cash' && <CashPayment />}
+        {activeTab === 'profile' && <SalesmanProfile activeUser={activeUser} />}
+        {activeTab === 'bill' && <BillSubmission activeUser={activeUser} />}
+        {activeTab === 'cash' && <CashPayment activeUser={activeUser} />}
       </div>
     </div>
   );

@@ -7,21 +7,18 @@ export default function VerificationCenter() {
 
   const fetchData = () => {
     api.get('/bills/admin/pending')
-      .then(res => setBills(res.data || []))
-      .catch(() => {
-        // Mock data
-        setBills([
-          { _id: 'b1', salesmanName: 'Ramesh', totalAmount: 12500, status: 'submitted', date: 'Today' }
-        ]);
+      .then(res => {
+        const allBills = res.data || [];
+        setBills(allBills.filter(b => b.status === 'submitted'));
+      })
+      .catch((err) => {
+        console.error('Failed to fetch pending bills:', err);
       });
 
     api.get('/payments/pending')
       .then(res => setPayments(res.data || []))
-      .catch(() => {
-        // Mock data
-        setPayments([
-          { _id: 'p1', salesmanName: 'Suresh', totalPayment: 8500, status: 'unverified', totalHandCash: 5000, phonePeAmount: 3500 }
-        ]);
+      .catch((err) => {
+        console.error('Failed to fetch pending payments:', err);
       });
   };
 
@@ -36,8 +33,7 @@ export default function VerificationCenter() {
       fetchData();
     } catch (err) {
       console.error(err);
-      alert('Mock updated for UI demonstration');
-      setBills(prev => prev.filter(b => b._id !== id));
+      alert('Failed to update bill status.');
     }
   };
 
@@ -48,8 +44,7 @@ export default function VerificationCenter() {
       fetchData();
     } catch (err) {
       console.error(err);
-      alert('Mock verified for UI demonstration');
-      setPayments(prev => prev.filter(p => p._id !== id));
+      alert('Failed to verify payment.');
     }
   };
 
@@ -65,10 +60,39 @@ export default function VerificationCenter() {
              <p className="text-gray-500 text-sm text-center py-4">No pending bills</p>
           ) : bills.map(b => (
             <div key={b._id} className="border border-orange-100 bg-white p-4 rounded-xl shadow-sm">
-              <div className="flex justify-between mb-3">
-                <span className="font-bold text-gray-800">{b.salesmanName}</span>
-                <span className="font-extrabold text-gray-900">₹{b.totalAmount}</span>
+              <div className="flex justify-between items-start mb-3 pb-3 border-b border-gray-100">
+                <div>
+                  <h3 className="font-bold text-gray-800 text-lg">{b.salesmanName}</h3>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-xs text-gray-500 font-medium">{b.date ? new Date(b.date).toLocaleDateString() : 'N/A'}</span>
+                    <span className="px-2 py-0.5 rounded bg-orange-100 text-orange-700 text-[10px] font-bold uppercase tracking-wider">
+                      {b.status}
+                    </span>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <span className="block text-[10px] font-bold text-gray-400 uppercase">Final Total</span>
+                  <span className="font-extrabold text-gray-900 text-xl">₹{b.totalAmount}</span>
+                </div>
               </div>
+
+              {b.items && b.items.length > 0 && (
+                <div className="mb-4 bg-gray-50 rounded-lg p-3 border border-gray-100">
+                  <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Itemized Breakdown</h4>
+                  <ul className="space-y-1.5">
+                    {b.items.map((item, idx) => (
+                      <li key={idx} className="flex justify-between items-center text-sm border-b border-gray-100 pb-1 last:border-0 last:pb-0">
+                        <span className="font-medium text-gray-700">{item.brandName || item.brandId}</span>
+                        <div className="text-right flex items-center gap-2">
+                          <span className="text-xs text-gray-500">@ ₹{item.rateSnapShot || 0}</span>
+                          <span className="font-bold text-gray-900 bg-white px-2 py-0.5 rounded shadow-sm text-xs">x {item.quantity}</span>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
               <div className="flex gap-2">
                 <button 
                   onClick={() => handleBillStatus(b._id, 'delivered')}

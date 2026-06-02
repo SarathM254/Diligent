@@ -1,15 +1,19 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import cors from 'cors';
 import billRoutes from "./routes/billRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import brandRoutes from "./routes/brandRoutes.js";
 
 dotenv.config();
 const app = express(); 
 
-// Use an environment variable for the port, fallback to 3000 if not defined
-const PORT = process.env.PORT || 3000;
+app.use(cors());
+
+// Use an environment variable for the port, fallback to 5000 if not defined
+const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/diligent';
 
 mongoose.connect(MONGO_URI)                                               // THIS ENV HANDLING MUSTBE UNDERSTOOD
@@ -22,6 +26,7 @@ app.use(express.json());
 app.use("/api/bills", billRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/brands", brandRoutes);
 
 app.get('/', (req, res) => {
   res.json({ 

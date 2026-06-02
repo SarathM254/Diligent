@@ -5,24 +5,39 @@ import User from "../models/User.js";
 // @route   POST /api/payments
 export const submitDailyPayment = async (req, res) => {
   try {
-    const { salesmanId, paymentDate, denominations, phonePeTransactions } = req.body;
+    let { cashBreakdown, totalHandCash, phonePeAmount, totalPayment } = req.body;
 
-    if (!salesmanId || !paymentDate) {
-      return res.status(400).json({ success: false, message: "Salesman ID and Payment Date are required." });
+    // Fallback salesmanId if not provided by frontend (since no login)
+    let salesmanId = req.body.salesmanId;
+    if (!salesmanId) {
+      const defaultUser = await User.findOne({ role: 'salesman' });
+      salesmanId = defaultUser ? defaultUser._id : null;
     }
+    
+    const paymentDate = new Date().toISOString().split('T')[0];
 
     // Map input fields to Mongoose schema shape
     const paymentData = {
       salesmanId,
       paymentDate,
-      handCash: { denominations: denominations || {} },
-      phonePe: phonePeTransactions || [],
-      status: "unverified" // Explicitly drops back to unverified on updates
+      cashBreakdown: cashBreakdown || {},
+      totalHandCash: totalHandCash || 0,
+      phonePeAmount: phonePeAmount || 0,
+      totalPayment: totalPayment || 0,
+      status: "unverified"
     };
+
+    const existingPayment = await Payment.findOne({ salesmanId, paymentDate });
+    if (existingPayment && existingPayment.status === "verified") {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Payment for today has already been verified and locked by the owner." 
+      });
+    }
 
     // Upsert pattern: Create sheet if empty for the day, update values if matching
     const payment = await Payment.findOneAndUpdate(
-      { salesmanId, paymentDate, status: "unverified" }, 
+      { salesmanId, paymentDate }, 
       paymentData,
       { new: true, upsert: true, runValidators: true }
     );
@@ -62,13 +77,16 @@ export const verifyPaymentByOwner = async (req, res) => {
     await payment.save();
 
     // INTERVIEW RELEVANT BUSINESS LOGIC: 
-    // In a future phase, we will fetch the salesman profile here and execute:
-    // salesmanProfile.broughtForwardDebt -= payment.grandTotalPaid;
-    // For now, we simulate this calculation block and return the verified amounts cleanly.
+    // Deduct the verified payment amount from the salesman's BF debt
+    const salesman = await User.findById(payment.salesmanId);
+    if (salesman) {
+      salesman.broughtForwardDebt -= payment.totalPayment;
+      await salesman.save();
+    }
 
     return res.status(200).json({
       success: true,
-      message: `Payment verified. Total of ₹${payment.grandTotalPaid} is locked and cleared from ledger debt metrics.`,
+      message: `Payment verified. Total of ₹${payment.totalPayment} is locked and cleared from ledger debt metrics.`,
       data: payment
     });
   } catch (error) {
@@ -80,8 +98,16 @@ export const verifyPaymentByOwner = async (req, res) => {
 // @route   GET /api/payments/admin/pending
 export const getPendingPaymentsForAdmin = async (req, res) => {
   try {
-    const sheets = await Payment.find({}).populate("salesmanId", "name email salesmanId").sort({ paymentDate: -1 });
-    return res.status(200).json({ success: true, count: sheets.length, data: sheets });
+    const sheets = await Payment.find({ status: 'unverified' }).populate("salesmanId", "name");
+    const mapped = sheets.map(p => ({
+      _id: p._id,
+      salesmanName: p.salesmanId ? p.salesmanId.name : 'Unknown',
+      totalPayment: p.totalPayment,
+      status: p.status,
+      totalHandCash: p.totalHandCash,
+      phonePeAmount: p.phonePeAmount
+    }));
+    return res.status(200).json(mapped);
   } catch (error) {
     return res.status(500).json({ success: false, message: "Error fetching payments summary", error: error.message });
   }

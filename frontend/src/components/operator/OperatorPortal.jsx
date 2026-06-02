@@ -15,20 +15,6 @@ export default function OperatorPortal() {
       })
       .catch(err => {
         console.error(err);
-        // Fallback mock data for visual testing when backend is disconnected
-        setBills([
-          { 
-            _id: 'b1', 
-            salesmanName: 'Ramesh', 
-            totalAmount: 15500, 
-            status: 'delivered', 
-            items: [
-              { brandName: 'Premium Brand A', quantity: 50 },
-              { brandName: 'Standard Brand B', quantity: 20 },
-              { brandName: 'Economy Brand C', quantity: 10 }
-            ]
-          }
-        ]);
       })
       .finally(() => setLoading(false));
   };
@@ -46,9 +32,7 @@ export default function OperatorPortal() {
       fetchDeliveredBills();
     } catch (err) {
       console.error(err);
-      alert('Mock updated to "billed" for UI demonstration');
-      // Optimistically remove from queue in mock mode
-      setBills(prev => prev.filter(b => b._id !== id));
+      alert('Failed to mark as billed.');
     }
   };
 
@@ -83,9 +67,12 @@ export default function OperatorPortal() {
               <div className="flex justify-between items-start mb-4 pb-3 border-b border-gray-100">
                 <div>
                   <h3 className="font-bold text-gray-800 text-lg">{bill.salesmanName || 'Unknown Salesman'}</h3>
-                  <span className="inline-block mt-1 px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded uppercase tracking-wide">
-                    Delivered
-                  </span>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-xs text-gray-500 font-medium">{bill.date ? new Date(bill.date).toLocaleDateString() : 'N/A'}</span>
+                    <span className="px-2 py-0.5 bg-green-100 text-green-700 text-[10px] font-bold rounded uppercase tracking-wide">
+                      Delivered
+                    </span>
+                  </div>
                 </div>
                 <div className="text-right">
                   <span className="block text-xs font-bold text-gray-400 uppercase">Final Total</span>
@@ -97,9 +84,12 @@ export default function OperatorPortal() {
                 <h4 className="text-xs font-bold text-purple-800 uppercase tracking-wider mb-2">Line Items</h4>
                 <ul className="space-y-1.5">
                   {bill.items && bill.items.length > 0 ? bill.items.map((item, idx) => (
-                    <li key={idx} className="flex justify-between text-sm">
+                    <li key={idx} className="flex justify-between items-center text-sm border-b border-purple-100/50 pb-1 last:border-0 last:pb-0">
                       <span className="font-medium text-gray-700">{item.brandName || item.brandId}</span>
-                      <span className="font-bold text-gray-900 bg-white px-2 py-0.5 rounded shadow-sm">x {item.quantity}</span>
+                      <div className="text-right flex items-center gap-2">
+                        <span className="text-xs text-purple-600/70">@ ₹{item.rateSnapShot || 0}</span>
+                        <span className="font-bold text-gray-900 bg-white px-2 py-0.5 rounded shadow-sm text-xs">x {item.quantity}</span>
+                      </div>
                     </li>
                   )) : (
                     <li className="text-sm text-gray-400 italic">No specific items listed in payload.</li>

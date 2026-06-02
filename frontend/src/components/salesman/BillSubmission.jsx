@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import api from '../../utils/api';
 
-export default function BillSubmission() {
+export default function BillSubmission({ activeUser }) {
   const [brands, setBrands] = useState([]);
   const [quantities, setQuantities] = useState({});
   const [status, setStatus] = useState('draft'); // draft, submitted
@@ -15,12 +15,6 @@ export default function BillSubmission() {
       })
       .catch(err => {
         console.error('Error fetching brands:', err);
-        // Fallback for UI testing if endpoint is empty
-        setBrands([
-          { _id: '1', name: 'Premium Brand A', retailPrice: 150 },
-          { _id: '2', name: 'Standard Brand B', retailPrice: 300 },
-          { _id: '3', name: 'Economy Brand C', retailPrice: 50 },
-        ]);
       });
   }, []);
 
@@ -43,7 +37,11 @@ export default function BillSubmission() {
         quantity: quantities[b._id] || 0
       })).filter(item => item.quantity > 0);
 
-      await api.post('/bills', { items, totalAmount: totalValue });
+      await api.post('/bills', { 
+        items, 
+        totalAmount: totalValue,
+        salesmanId: activeUser?._id
+      });
       setStatus('submitted');
       alert('Daily Run Bill submitted successfully!');
     } catch (error) {

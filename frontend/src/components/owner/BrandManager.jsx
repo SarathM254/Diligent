@@ -7,6 +7,7 @@ export default function BrandManager() {
   const [editingId, setEditingId] = useState(null);
   
   const [name, setName] = useState('');
+  const [code, setCode] = useState('');
   const [wholesalePrice, setWholesalePrice] = useState('');
   const [retailPrice, setRetailPrice] = useState('');
 
@@ -18,11 +19,6 @@ export default function BrandManager() {
       })
       .catch(err => {
         console.error(err);
-        // Fallback for visual testing
-        setBrands([
-          { _id: '1', name: 'Premium Brand A', wholesalePrice: 120, retailPrice: 150 },
-          { _id: '2', name: 'Standard Brand B', wholesalePrice: 250, retailPrice: 300 },
-        ]);
       });
   };
 
@@ -33,6 +29,7 @@ export default function BrandManager() {
   const handleAddNew = () => {
     setEditingId(null);
     setName('');
+    setCode('');
     setWholesalePrice('');
     setRetailPrice('');
     setShowForm(true);
@@ -41,6 +38,7 @@ export default function BrandManager() {
   const handleEdit = (brand) => {
     setEditingId(brand._id || brand.id);
     setName(brand.name);
+    setCode(brand.code || '');
     setWholesalePrice(brand.wholesalePrice || '');
     setRetailPrice(brand.retailPrice || '');
     setShowForm(true);
@@ -52,6 +50,7 @@ export default function BrandManager() {
       await api.post('/brands/upsert', {
         id: editingId,
         name,
+        code,
         wholesalePrice: Number(wholesalePrice),
         retailPrice: Number(retailPrice)
       });
@@ -91,6 +90,13 @@ export default function BrandManager() {
               onChange={e => setName(e.target.value)}
               className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
             />
+            <input 
+              type="text" 
+              placeholder="Brand Code (e.g., GFC_LIGHTS)"
+              value={code}
+              onChange={e => setCode(e.target.value)}
+              className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+            />
             <div className="flex gap-3">
               <input 
                 required
@@ -121,7 +127,7 @@ export default function BrandManager() {
         {brands.map((b, i) => (
           <div key={b._id || i} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex justify-between items-center">
             <div>
-              <p className="font-bold text-gray-800">{b.name}</p>
+              <p className="font-bold text-gray-800">{b.name} <span className="text-xs text-gray-400 ml-1">{b.code ? `[${b.code}]` : ''}</span></p>
               <div className="flex gap-4 mt-1">
                 <span className="text-xs font-semibold text-gray-500">W: ₹{b.wholesalePrice}</span>
                 <span className="text-xs font-semibold text-blue-600">R: ₹{b.retailPrice}</span>

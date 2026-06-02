@@ -1,29 +1,50 @@
-import Bill from '../models/Bill.js';                                // THESE CONTOLLERS NEED TO BE STUDIED 
+import Bill from '../models/Bill.js';
+import User from '../models/User.js';
+import Brand from '../models/Brand.js';                                // THESE CONTOLLERS NEED TO BE STUDIED 
 
 // 1. Create or Update Draft Bill
 export const createOrUpdateDraftBill = async (req, res) => {
   try {
-    const { salesmanId, billingDate, items } = req.body;
+    let { items, totalAmount } = req.body;
     
-    // Look for an existing draft bill for the salesman on the specified date
-    let bill = await Bill.findOne({ salesmanId, billingDate, status: 'draft' });
+    // Fallback salesmanId if not provided by frontend (since no login)
+    let salesmanId = req.body.salesmanId;
+    if (!salesmanId) {
+      const defaultUser = await User.findOne({ role: 'salesman' });
+      salesmanId = defaultUser ? defaultUser._id : null;
+    }
 
-    if (bill) {
-      // Update its items array
-      bill.items = items;
-      await bill.save();
-      return res.status(200).json(bill);
-    } else {
-      // Create a new draft bill
-      bill = new Bill({
+    const billingDate = new Date().toISOString().split('T')[0];
+
+    // Map items to include rateSnapShot
+    const mappedItems = await Promise.all(items.map(async (item) => {
+      const brand = await Brand.findById(item.brandId);
+      return {
+        brandId: item.brandId,
+        quantity: item.quantity,
+        rateSnapShot: brand ? brand.retailPrice : 0,
+        brandName: brand ? brand.name : 'Unknown Brand'
+      };
+    }));
+    
+    const existingBill = await Bill.findOne({ salesmanId, billingDate });
+    if (existingBill && existingBill.status !== 'draft' && existingBill.status !== 'submitted') {
+      return res.status(400).json({ error: "Bill for today is already processed by the owner." });
+    }
+
+    const bill = await Bill.findOneAndUpdate(
+      { salesmanId, billingDate },
+      {
         salesmanId,
         billingDate,
-        items,
-        status: 'draft'
-      });
-      await bill.save();
-      return res.status(201).json(bill);
-    }
+        items: mappedItems,
+        totalBillValue: totalAmount || 0,
+        status: 'submitted'
+      },
+      { new: true, upsert: true, runValidators: true }
+    );
+    
+    return res.status(201).json(bill);
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
@@ -65,9 +86,21 @@ export const updateBillStatusByOwner = async (req, res) => {
       return res.status(404).json({ error: 'Bill not found' });
     }
 
+    // Check if status is transitioning to delivered
+    const isBecomingDelivered = status === 'delivered' && bill.status !== 'delivered';
+
     // Change status (e.g., to 'delivered')
     if (status) {
       bill.status = status;
+    }
+
+    if (isBecomingDelivered) {
+      // Add the bill amount to the salesman's BF balance
+      const salesman = await User.findById(bill.salesmanId);
+      if (salesman) {
+        salesman.broughtForwardDebt += bill.totalBillValue;
+        await salesman.save();
+      }
     }
 
     // Push the date to the next operational date
@@ -105,9 +138,19 @@ export const getPendingBillsForAdmin = async (req, res) => {
     // Fetch all bills where status is 'submitted', 'delivered', or 'billed'
     const bills = await Bill.find({ 
       status: { $in: ['submitted', 'delivered', 'billed'] } 
-    });
+    }).populate('salesmanId', 'name');
     
-    return res.status(200).json(bills);
+    // Map to frontend expected shape
+    const mappedBills = bills.map(b => ({
+      _id: b._id,
+      salesmanName: b.salesmanId ? b.salesmanId.name : 'Unknown',
+      totalAmount: b.totalBillValue,
+      status: b.status,
+      date: b.billingDate,
+      items: b.items
+    }));
+
+    return res.status(200).json(mappedBills);
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }

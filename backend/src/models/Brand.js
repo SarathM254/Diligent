@@ -8,18 +8,15 @@ const brandSchema = new mongoose.Schema(
     },
     code: {
       type: String,
-      required: true,
-      unique: true // Ensures no two cigarette brands accidentally share the same identifier code
+      required: false,
     },
-    price: {
-      wholesale: {
-        type: Number,
-        required: true
-      },
-      retail: {
-        type: Number,
-        required: true
-      }
+    wholesalePrice: {
+      type: Number,
+      required: true
+    },
+    retailPrice: {
+      type: Number,
+      required: true
     }
   },
   {

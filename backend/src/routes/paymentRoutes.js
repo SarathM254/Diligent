@@ -5,6 +5,6 @@ const router = express.Router();
 
 router.post("/", submitDailyPayment);
 router.patch("/:id/verify", verifyPaymentByOwner);
-router.get("/admin/pending", getPendingPaymentsForAdmin);
+router.get("/pending", getPendingPaymentsForAdmin);
 
 export default router;

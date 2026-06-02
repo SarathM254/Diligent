@@ -9,10 +9,6 @@ export default function LedgerControl() {
       .then(res => setSalesmen(res.data || []))
       .catch(err => {
         console.error(err);
-        setSalesmen([
-          { _id: 'u1', name: 'Ramesh (Sales)', bfDebt: 4500 },
-          { _id: 'u2', name: 'Suresh (Sales)', bfDebt: -200 },
-        ]);
       });
   };
 
@@ -33,9 +29,7 @@ export default function LedgerControl() {
       fetchSalesmen();
     } catch (err) {
       console.error(err);
-      alert('Balance adjusted for UI demonstration (Backend disconnected)');
-      // Optimistic UI update for testing
-      setSalesmen(prev => prev.map(s => s._id === id ? { ...s, bfDebt: (s.bfDebt || 0) + amount } : s));
+      alert('Failed to adjust ledger balance.');
     }
   };
 
@@ -53,8 +47,8 @@ export default function LedgerControl() {
               <span className="font-bold text-gray-800 text-lg">{s.name}</span>
               <div className="text-right">
                 <span className="block text-xs text-gray-400 font-bold uppercase">Current BF</span>
-                <span className={`text-xl font-extrabold ${s.bfDebt > 0 ? 'text-red-500' : 'text-emerald-500'}`}>
-                  ₹{s.bfDebt}
+                <span className={`text-xl font-extrabold ${(s.broughtForwardDebt || 0) > 0 ? 'text-red-500' : 'text-emerald-500'}`}>
+                  ₹{s.broughtForwardDebt || 0}
                 </span>
               </div>
             </div>
