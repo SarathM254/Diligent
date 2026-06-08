@@ -93,18 +93,12 @@ export default function VerificationCenter() {
                 </div>
               )}
 
-              <div className="flex gap-2">
+              <div className="flex">
                 <button 
                   onClick={() => handleBillStatus(b._id, 'delivered')}
                   className="flex-1 py-2 bg-emerald-600 text-white font-bold rounded-lg hover:bg-emerald-700 text-sm"
                 >
                   Mark Delivered
-                </button>
-                <button 
-                  onClick={() => handleBillStatus(b._id, 'date_push')}
-                  className="flex-1 py-2 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 text-sm"
-                >
-                  Date Push
                 </button>
               </div>
             </div>
