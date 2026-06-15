@@ -12,8 +12,12 @@ const paymentSchema = new mongoose.Schema(
       required: true
     },
     cashBreakdown: {
-      type: Object,
-      default: {}
+      500: { type: Number, default: 0, min: 0 },
+      200: { type: Number, default: 0, min: 0 },
+      100: { type: Number, default: 0, min: 0 },
+      50: { type: Number, default: 0, min: 0 },
+      20: { type: Number, default: 0, min: 0 },
+      10: { type: Number, default: 0, min: 0 }
     },
     totalHandCash: {
       type: Number,
@@ -39,7 +43,24 @@ const paymentSchema = new mongoose.Schema(
   }
 );
 
+
+//restricting the salesman to make only one payment entry per day.
+
 paymentSchema.index({ salesmanId: 1, paymentDate: 1 }, { unique: true });
+paymentSchema.index({ status: 1 });
+
+paymentSchema.pre("save", function () {
+  const cb = this.cashBreakdown;
+  this.totalHandCash = 
+    ((cb[500] || 0) * 500) +
+    ((cb[200] || 0) * 200) +
+    ((cb[100] || 0) * 100) +
+    ((cb[50] || 0) * 50) +
+    ((cb[20] || 0) * 20) +
+    ((cb[10] || 0) * 10);
+
+  this.totalPayment = this.totalHandCash + (this.phonePeAmount || 0);
+});
 
 const Payment = mongoose.model("Payment", paymentSchema);
 export default Payment;

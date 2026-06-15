@@ -29,13 +29,18 @@ const userSchema = new mongoose.Schema(
     },
     broughtForwardDebt: {
       type: Number,
-      default: 0 // Starts at 0 for all users
+      default: function() {
+        return this.role === "salesman" ? 0 : undefined; 
+        // If it's a salesman, initialize to 0. If it's an operator, drop the field entirely!
+      }
     }
   },
   {
     timestamps: true // Automatically gives you createdAt and updatedAt
   }
 );
+
+userSchema.index({ role: 1, name: 1 });
 
 const User = mongoose.model("User", userSchema);
 export default User;

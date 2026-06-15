@@ -4,12 +4,18 @@ import {
   submitBill,
   updateBillStatusByOwner,
   getSalesmanBillHistory,
-  getPendingBillsForAdmin
+  getPendingBillsForAdmin,
+  pushGlobalSystemDate,
+  getGlobalSystemDate,
+  getDashboardStats
 } from '../controllers/billController.js';
 
 const router = express.Router();
 
 router.post('/', createOrUpdateDraftBill);
+router.get('/global-date', getGlobalSystemDate);
+router.get('/dashboard-stats', getDashboardStats);
+router.post('/global-push-date', pushGlobalSystemDate);
 router.patch('/:id/submit', submitBill);
 router.patch('/:id/status', updateBillStatusByOwner);
 router.get('/history/:salesmanId', getSalesmanBillHistory);

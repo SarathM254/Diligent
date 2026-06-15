@@ -1,156 +1,241 @@
 import Bill from '../models/Bill.js';
 import User from '../models/User.js';
-import Brand from '../models/Brand.js';                                // THESE CONTOLLERS NEED TO BE STUDIED 
+import Brand from '../models/Brand.js';
+import AppSettings from '../models/AppSettings.js';
+import LedgerTransaction from '../models/LedgerTransaction.js';
 
-// 1. Create or Update Draft Bill
+const getActiveSystemDate = async () => {
+  let settings = await AppSettings.findOne({ key: "global_config" });
+  
+  // Use explicit timezone to avoid Vercel UTC server offset issues
+  const localStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+
+  if (!settings) {
+    settings = await AppSettings.create({ key: "global_config", operationalDate: localStr });
+  } else {
+    // Auto-sync logic: If real date is strictly greater than operational date, bring operational date up to real date
+    if (localStr > settings.operationalDate) {
+      settings.operationalDate = localStr;
+      await settings.save();
+    }
+  }
+  return settings.operationalDate;
+};
+
+export const getGlobalSystemDate = async (req, res) => {
+  try {
+    const operationalDate = await getActiveSystemDate();
+    return res.status(200).json({ operationalDate });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
 export const createOrUpdateDraftBill = async (req, res) => {
   try {
-    let { items, totalAmount } = req.body;
-    
-    // Fallback salesmanId if not provided by frontend (since no login)
-    let salesmanId = req.body.salesmanId;
-    if (!salesmanId) {
-      const defaultUser = await User.findOne({ role: 'salesman' });
-      salesmanId = defaultUser ? defaultUser._id : null;
-    }
+    const { items, salesmanId } = req.body;
+    if (!items || !Array.isArray(items)) return res.status(400).json({ error: "Items array required." });
 
-    const billingDate = new Date().toISOString().split('T')[0];
+    const billingDate = await getActiveSystemDate();
 
-    // Map items to include rateSnapShot
     const mappedItems = await Promise.all(items.map(async (item) => {
-      const brand = await Brand.findById(item.brandId);
+      const brand = await Brand.findById(item.brandId).catch(() => null);
       return {
         brandId: item.brandId,
-        quantity: item.quantity,
-        rateSnapShot: brand ? brand.retailPrice : 0,
-        brandName: brand ? brand.name : 'Unknown Brand'
+        quantity: Number(item.quantity || 0),
+        rateSnapShot: brand ? brand.retailPrice : (item.rate || 0),
+        brandName: brand ? brand.name : (item.brandName || 'Unknown Brand')
       };
     }));
-    
+
     const existingBill = await Bill.findOne({ salesmanId, billingDate });
     if (existingBill && existingBill.status !== 'draft' && existingBill.status !== 'submitted') {
-      return res.status(400).json({ error: "Bill for today is already processed by the owner." });
+      return res.status(400).json({ error: "Bill for today is locked down by management." });
     }
 
-    const bill = await Bill.findOneAndUpdate(
-      { salesmanId, billingDate },
-      {
-        salesmanId,
-        billingDate,
-        items: mappedItems,
-        totalBillValue: totalAmount || 0,
-        status: 'submitted'
-      },
-      { new: true, upsert: true, runValidators: true }
-    );
-    
+    let bill = await Bill.findOne({ salesmanId, billingDate });
+    if (!bill) bill = new Bill({ salesmanId, billingDate });
+
+    bill.items = mappedItems;
+    bill.status = 'submitted';
+    await bill.save();
+
     return res.status(201).json(bill);
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
 };
 
-// 2. Submit Bill
 export const submitBill = async (req, res) => {
   try {
     const { id } = req.params;
     const bill = await Bill.findById(id);
-
-    if (!bill) {
-      return res.status(404).json({ error: 'Bill not found' });
-    }
-
-    // Change status from 'draft' to 'submitted'
-    if (bill.status !== 'draft') {
-      return res.status(400).json({ error: 'Only draft bills can be submitted' });
-    }
-
+    if (!bill) return res.status(404).json({ error: 'Bill not found' });
     bill.status = 'submitted';
     await bill.save();
-
     return res.status(200).json(bill);
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
 };
 
-// 3. Update Bill Status by Owner
 export const updateBillStatusByOwner = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status, pushDate } = req.body;
+    const { status, items } = req.body;
 
     const bill = await Bill.findById(id);
+    if (!bill) return res.status(404).json({ error: 'Bill file matching parameters not found.' });
 
-    if (!bill) {
-      return res.status(404).json({ error: 'Bill not found' });
-    }
-
-    // Check if status is transitioning to delivered
     const isBecomingDelivered = status === 'delivered' && bill.status !== 'delivered';
+    if (status) bill.status = status;
 
-    // Change status (e.g., to 'delivered')
-    if (status) {
-      bill.status = status;
+    if (items && Array.isArray(items)) {
+      const mappedItems = await Promise.all(items.map(async (item) => {
+        const brand = await Brand.findById(item.brandId).catch(() => null);
+        return {
+          brandId: item.brandId,
+          quantity: Number(item.quantity || 0),
+          rateSnapShot: brand ? brand.retailPrice : (item.rate || item.rateSnapShot || 0),
+          brandName: brand ? brand.name : (item.brandName || 'Unknown Brand')
+        };
+      }));
+      bill.items = mappedItems;
+      // Manually recalculate the total value right now so subsequent ledger updates use the correct value
+      bill.totalBillValue = bill.items.reduce((sum, item) => sum + (item.quantity * item.rateSnapShot), 0);
     }
 
     if (isBecomingDelivered) {
-      // Add the bill amount to the salesman's BF balance
       const salesman = await User.findById(bill.salesmanId);
       if (salesman) {
+        const oldBF = salesman.broughtForwardDebt;
         salesman.broughtForwardDebt += bill.totalBillValue;
         await salesman.save();
+
+        await LedgerTransaction.create({
+          salesmanId: salesman._id,
+          type: "bill_delivery",
+          amount: bill.totalBillValue,
+          description: `Bill verified and delivered for operational date: ${bill.billingDate}`,
+          previousBF: oldBF,
+          newBF: salesman.broughtForwardDebt
+        });
+
+        for (const item of bill.items) {
+          await Brand.findByIdAndUpdate(
+            item.brandId,
+            { $inc: { inventoryCount: -Number(item.quantity) } }
+          );
+        }
       }
     }
 
-    // Push the date to the next operational date
-    if (pushDate) {
-      bill.isPushedToNextDay = true;
-      const nextDate = new Date(bill.billingDate);
-      nextDate.setDate(nextDate.getDate() + 1); // Simplistic 1-day push, can adjust for business logic
-      bill.billingDate = nextDate;
-    }
-
     await bill.save();
-
     return res.status(200).json(bill);
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
 };
 
-// 4. Get Salesman Bill History
-export const getSalesmanBillHistory = async (req, res) => {
+export const pushGlobalSystemDate = async (req, res) => {
   try {
-    const { salesmanId } = req.params;
-    // Fetch all historical bills for the specific salesmanId, sorted by billingDate descending
-    const bills = await Bill.find({ salesmanId }).sort({ billingDate: -1 });
+    const settings = await AppSettings.findOne({ key: "global_config" });
+    if (!settings) return res.status(404).json({ error: "System matrix not initialized." });
+
+    // Use explicit timezone to avoid Vercel UTC server offset issues
+    const localStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+
+    if (settings.operationalDate > localStr) {
+      return res.status(400).json({ error: "Date already advanced beyond current real-world day." });
+    }
+
+    const currentDate = new Date(settings.operationalDate);
+    const dayOfWeek = currentDate.getDay(); // 0 is Sunday, 6 is Saturday
     
-    return res.status(200).json(bills);
+    if (dayOfWeek === 6) {
+      // Leap over Sunday
+      currentDate.setDate(currentDate.getDate() + 2);
+    } else {
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    
+    settings.operationalDate = currentDate.toISOString().split('T')[0];
+    await settings.save();
+
+    return res.status(200).json({ success: true, message: `System date pushed to ${settings.operationalDate}`, data: settings });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
 };
 
-// 5. Get Pending Bills for Admin
+export const getSalesmanBillHistory = async (req, res) => {
+  try {
+    const { salesmanId } = req.params;
+    return res.status(200).json(await Bill.find({ salesmanId }).sort({ billingDate: -1 }).lean());
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
 export const getPendingBillsForAdmin = async (req, res) => {
   try {
-    // Fetch all bills where status is 'submitted', 'delivered', or 'billed'
-    const bills = await Bill.find({ 
-      status: { $in: ['submitted', 'delivered', 'billed'] } 
-    }).populate('salesmanId', 'name');
+    const operationalDate = await getActiveSystemDate();
     
-    // Map to frontend expected shape
-    const mappedBills = bills.map(b => ({
+    // Show all submitted and delivered bills regardless of date.
+    // Only show billed bills if they were billed on the current operational date.
+    const bills = await Bill.find({
+      $or: [
+        { status: { $in: ['submitted', 'delivered'] } },
+        { status: 'billed', billingDate: operationalDate }
+      ]
+    }).populate('salesmanId', 'name').lean();
+    
+    return res.status(200).json(bills.map(b => ({
       _id: b._id,
-      salesmanName: b.salesmanId ? b.salesmanId.name : 'Unknown',
+      salesmanName: b.salesmanId ? b.salesmanId.name : 'Unknown Profile',
       totalAmount: b.totalBillValue,
       status: b.status,
       date: b.billingDate,
       items: b.items
-    }));
+    })));
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
 
-    return res.status(200).json(mappedBills);
+export const getDashboardStats = async (req, res) => {
+  try {
+    const operationalDate = await getActiveSystemDate();
+
+    // 1. Total Salesman Exposure (Global)
+    const salesmen = await User.find({ role: 'salesman' }).lean();
+    const totalSalesmanBFDebt = salesmen.reduce((sum, s) => sum + (s.broughtForwardDebt || 0), 0);
+
+    // 2. Load Volume for Operational Date
+    const todaysBills = await Bill.find({ billingDate: operationalDate, status: { $in: ['delivered', 'billed'] } }).lean();
+    
+    let billedLoad = 0;
+    let unbilledLoad = 0;
+
+    todaysBills.forEach(bill => {
+      // Calculate total volume (quantity) for this bill
+      const billVolume = bill.items.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
+      
+      if (bill.status === 'billed') {
+        billedLoad += billVolume;
+      } else if (bill.status === 'delivered') {
+        unbilledLoad += billVolume;
+      }
+    });
+
+    return res.status(200).json({
+      operationalDate,
+      totalSalesmanBFDebt,
+      stockDelivered: {
+        billed: billedLoad,
+        unbilled: unbilledLoad
+      }
+    });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
