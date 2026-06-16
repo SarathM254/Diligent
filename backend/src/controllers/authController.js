@@ -89,6 +89,7 @@ export const googleLogin = async (req, res) => {
         name: user.name,
         email: user.email,
         salesmanId: user.salesmanId,
+        broughtForwardDebt: user.broughtForwardDebt || 0,
       }
     });
   } catch (error) {

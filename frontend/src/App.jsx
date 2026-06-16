@@ -39,7 +39,15 @@ export default function App() {
   const [activeSalesman, setActiveSalesman] = useState(() => {
     const userJson = localStorage.getItem('session_user');
     const storedRole = localStorage.getItem('session_role');
-    return (userJson && storedRole === 'salesman') ? JSON.parse(userJson) : null;
+    if (userJson && storedRole === 'salesman') {
+      const u = JSON.parse(userJson);
+      return {
+        ...u,
+        code: u.salesmanId || 'N/A',
+        bf: u.broughtForwardDebt || 0
+      };
+    }
+    return null;
   });
 
   // owner state
@@ -77,7 +85,11 @@ export default function App() {
           
           setRole(userRole);
           if (userRole === 'salesman') {
-            setActiveSalesman(user);
+            setActiveSalesman({
+              ...user,
+              code: user.salesmanId || 'N/A',
+              bf: user.broughtForwardDebt || 0
+            });
           } else if (userRole === 'operator') {
             setActiveOperator(user);
           }
