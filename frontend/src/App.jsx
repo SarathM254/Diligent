@@ -56,6 +56,12 @@ export default function App() {
   // error message state
   const [errorMsg, setErrorMsg] = useState('');
 
+  // pin verification state
+  const [isOwnerPinVerified, setIsOwnerPinVerified] = useState(false);
+  const [pinInput, setPinInput] = useState('');
+  const [pinError, setPinError] = useState('');
+  const [verifyingPin, setVerifyingPin] = useState(false);
+
   const handleLogout = () => {
     localStorage.removeItem('session_token');
     localStorage.removeItem('session_role');
@@ -66,6 +72,9 @@ export default function App() {
     setActiveOperator(null);
     setOwnerView('home');
     setErrorMsg('');
+    setIsOwnerPinVerified(false);
+    setPinInput('');
+    setPinError('');
   };
 
   React.useEffect(() => {
@@ -176,6 +185,20 @@ export default function App() {
     </header>
   );
 
+  const handlePinSubmit = async (e) => {
+    e.preventDefault();
+    setVerifyingPin(true);
+    setPinError('');
+    try {
+      await apiClient.post('/auth/verify-owner', { pin: pinInput });
+      setIsOwnerPinVerified(true);
+    } catch (err) {
+      setPinError(err.response?.data?.error || 'Invalid PIN');
+    } finally {
+      setVerifyingPin(false);
+    }
+  };
+
   return (
     <div className="w-full max-w-md mx-auto p-4 min-h-screen bg-gray-50 flex flex-col font-sans">
       <Header />
@@ -211,9 +234,43 @@ export default function App() {
         </main>
       ) : role === 'owner' ? (
         <main className="flex-1 w-full pb-4">
-          {ownerView === 'home' && (
-            <OwnerDashboard onNavigate={setOwnerView} />
-          )}
+          {!isOwnerPinVerified ? (
+            <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 mt-4 text-center">
+              <div className="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 mb-2 tracking-tight">Owner Verification</h3>
+              <p className="text-sm text-slate-500 mb-6 font-medium">Please enter your PIN to access the dashboard.</p>
+              <form onSubmit={handlePinSubmit} className="flex flex-col gap-4 max-w-[220px] mx-auto">
+                <input 
+                  type="password" 
+                  value={pinInput} 
+                  onChange={(e) => setPinInput(e.target.value)} 
+                  placeholder="Enter PIN" 
+                  className="w-full text-center tracking-widest text-2xl font-bold p-3 border border-slate-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition-all"
+                  autoFocus
+                />
+                {pinError && <p className="text-xs text-red-500 font-bold">{pinError}</p>}
+                <button 
+                  type="submit" 
+                  disabled={verifyingPin || !pinInput}
+                  className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white font-bold py-3.5 rounded-xl transition-colors shadow-xs flex items-center justify-center"
+                >
+                  {verifyingPin ? (
+                    <svg className="w-5 h-5 animate-spin text-white" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                  ) : 'Unlock Portal'}
+                </button>
+              </form>
+            </div>
+          ) : (
+            <>
+              {ownerView === 'home' && (
+                <OwnerDashboard onNavigate={setOwnerView} />
+              )}
           {ownerView === 'verify' && (
             <VerificationDesk onBack={() => setOwnerView('home')} />
           )}
@@ -229,8 +286,10 @@ export default function App() {
           {ownerView === 'brands' && (
             <BrandManagerPortal onBack={() => setOwnerView('home')} />
           )}
-          {ownerView === 'billing_ops' && (
-            <OperatorDashboard onBackToList={() => setOwnerView('home')} />
+              {ownerView === 'billing_ops' && (
+                <OperatorDashboard onBackToList={() => setOwnerView('home')} />
+              )}
+            </>
           )}
         </main>
       ) : role === 'operator' ? (
