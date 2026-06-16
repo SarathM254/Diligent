@@ -14,10 +14,10 @@ const apiClient = axios.create({
 // Optional: Add a request interceptor to attach auth tokens in the future
 apiClient.interceptors.request.use(
   (config) => {
-    // Example: const token = localStorage.getItem('token');
-    // if (token) {
-    //   config.headers.Authorization = `Bearer ${token}`;
-    // }
+    const token = localStorage.getItem('session_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   (error) => {
@@ -29,9 +29,13 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
+    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
       // Handle unauthorized access (e.g., redirect to login, clear state)
       console.error('Unauthorized request. Redirecting or clearing session...');
+      localStorage.removeItem('session_token');
+      localStorage.removeItem('session_role');
+      localStorage.removeItem('session_user');
+      window.location.reload();
     }
     return Promise.reject(error);
   }

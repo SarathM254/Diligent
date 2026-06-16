@@ -1,14 +1,15 @@
 import express from "express";
 import { getAllSalesmen, adjustLedgerBalance, getAllOperators, registerUser, getSalesmanStatementHistory, updateUser, deleteUser } from "../controllers/userController.js";
+import { verifyOwner } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
 router.get("/salesmen", getAllSalesmen);
 router.get("/operators", getAllOperators);
 router.get("/statement/:salesmanId", getSalesmanStatementHistory);
-router.post("/register", registerUser);
-router.patch("/adjust-balance", adjustLedgerBalance); 
-router.put("/:id", updateUser);
-router.delete("/:id", deleteUser);
+router.post("/register", verifyOwner, registerUser);
+router.patch("/adjust-balance", verifyOwner, adjustLedgerBalance); 
+router.put("/:id", verifyOwner, updateUser);
+router.delete("/:id", verifyOwner, deleteUser);
 
 export default router;

@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function AIInvoiceReview({ extractedData, onAccept, onModify, onCancel }) {
+export default function AIInvoiceReview({ extractedData, remarks, onAccept, onModify, onCancel }) {
   // Extracting active items only
   const activeItems = extractedData.filter(item => item.quantity > 0);
 
@@ -20,7 +20,14 @@ export default function AIInvoiceReview({ extractedData, onAccept, onModify, onC
         </button>
       </div>
 
-      <div className="flex-1 p-4 overflow-y-auto">
+      <div className="flex-1 p-4 overflow-y-auto space-y-4">
+        {remarks && (
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 shadow-sm">
+            <h3 className="text-xs font-bold text-amber-800 uppercase tracking-wider mb-2">AI Remarks</h3>
+            <p className="text-sm font-medium text-amber-900 leading-relaxed">{remarks}</p>
+          </div>
+        )}
+
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm font-mono text-sm text-slate-800">
           <div className="text-center font-bold pb-4 border-b-2 border-dashed border-slate-300 mb-4">
             EXTRACTED MANIFEST

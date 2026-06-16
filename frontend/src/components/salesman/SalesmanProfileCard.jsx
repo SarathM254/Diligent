@@ -17,10 +17,12 @@ export default function SalesmanProfileCard({ salesman, onNavigateToBilling, onN
         {/* Header Layout */}
         <div className="flex items-start justify-between">
           <div>
-            <button onClick={onBackToList} className="flex items-center text-[11px] font-bold text-slate-400 hover:text-indigo-600 mb-2 transition-colors uppercase tracking-wider">
-              <svg className="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
-              Agent List
-            </button>
+            {onBackToList && (
+              <button onClick={onBackToList} className="flex items-center text-[11px] font-bold text-slate-400 hover:text-indigo-600 mb-2 transition-colors uppercase tracking-wider">
+                <svg className="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+                Agent List
+              </button>
+            )}
             <h2 className="text-xl font-bold text-slate-900 tracking-tight leading-none">
               {salesman.name}
             </h2>

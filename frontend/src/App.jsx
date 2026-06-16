@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './App.css';
+import apiClient from './api/apiClient';
 
 // Owner Components
 import OwnerDashboard from './components/owner/dashboard/OwnerDashboard';
@@ -22,57 +23,126 @@ import SalesmanSelectionList from './components/salesman/SalesmanSelectionList';
 import SalesmanPriceList from './components/salesman/SalesmanPriceList';
 
 export default function App() {
-  const [role, setRole] = useState('none'); // 'none', 'owner', 'operator', 'salesman'
-  
+  const [role, setRole] = useState(() => {
+    return localStorage.getItem('session_role') || 'none';
+  });
+
   // operator state
-  const [activeOperator, setActiveOperator] = useState(null);
+  const [activeOperator, setActiveOperator] = useState(() => {
+    const userJson = localStorage.getItem('session_user');
+    const storedRole = localStorage.getItem('session_role');
+    return (userJson && storedRole === 'operator') ? JSON.parse(userJson) : null;
+  });
 
   // salesman state
   const [salesmanView, setSalesmanView] = useState('home');
-  const [activeSalesman, setActiveSalesman] = useState(null);
+  const [activeSalesman, setActiveSalesman] = useState(() => {
+    const userJson = localStorage.getItem('session_user');
+    const storedRole = localStorage.getItem('session_role');
+    return (userJson && storedRole === 'salesman') ? JSON.parse(userJson) : null;
+  });
 
   // owner state
   const [ownerView, setOwnerView] = useState('home');
 
+  // error message state
+  const [errorMsg, setErrorMsg] = useState('');
+
   const handleLogout = () => {
+    localStorage.removeItem('session_token');
+    localStorage.removeItem('session_role');
+    localStorage.removeItem('session_user');
     setRole('none');
     setSalesmanView('home');
     setActiveSalesman(null);
     setActiveOperator(null);
     setOwnerView('home');
+    setErrorMsg('');
   };
 
-  const initRoleSelection = (targetRole) => {
-    setRole(targetRole);
-  };
+  React.useEffect(() => {
+    if (role === 'none') {
+      window.handleGoogleCallback = async (response) => {
+        setErrorMsg('');
+        try {
+          const res = await apiClient.post('/auth/google', {
+            credential: response.credential
+          });
+          
+          const { token, role: userRole, user } = res.data;
+          
+          localStorage.setItem('session_token', token);
+          localStorage.setItem('session_role', userRole);
+          localStorage.setItem('session_user', JSON.stringify(user));
+          
+          setRole(userRole);
+          if (userRole === 'salesman') {
+            setActiveSalesman(user);
+          } else if (userRole === 'operator') {
+            setActiveOperator(user);
+          }
+        } catch (err) {
+          setErrorMsg(err.response?.data?.error || 'Authentication failed. Email might not be registered.');
+        }
+      };
+
+      const initGoogle = () => {
+        if (window.google) {
+          window.google.accounts.id.initialize({
+            client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || 'your_google_client_id_here',
+            callback: window.handleGoogleCallback,
+          });
+
+          const btnDiv = document.getElementById('google-btn-container');
+          if (btnDiv) {
+            window.google.accounts.id.renderButton(
+              btnDiv,
+              { theme: 'outline', size: 'large', width: 320 }
+            );
+          }
+        }
+      };
+
+      initGoogle();
+
+      const interval = setInterval(() => {
+        if (window.google) {
+          initGoogle();
+          clearInterval(interval);
+        }
+      }, 500);
+
+      return () => clearInterval(interval);
+    }
+  }, [role]);
 
   if (role === 'none') {
     return (
-      <div className="w-full max-w-md mx-auto p-4 min-h-screen flex flex-col items-center justify-center bg-gray-50 text-gray-900">
-        <div className="bg-white shadow-xl rounded-2xl p-8 w-full flex flex-col gap-6 text-center">
-          <h1 className="text-3xl font-extrabold text-blue-600 mb-2">Manikyapriya Agencies</h1>
-          <p className="text-gray-500 mb-6">Select your portal to continue</p>
+      <div className="w-full max-w-md mx-auto p-4 min-h-screen flex flex-col items-center justify-center bg-gray-50 text-gray-900 font-sans">
+        <div className="bg-white shadow-xl rounded-2xl p-8 w-full flex flex-col gap-8 text-center border border-gray-100">
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-2xl font-extrabold mb-2 shadow-inner">
+              G
+            </div>
+            <h1 className="text-3xl font-extrabold text-gray-800">Sign in with Google</h1>
+            <p className="text-gray-500 text-sm max-w-xs leading-relaxed">
+              Quick and secure sign-in with your Google account
+            </p>
+          </div>
           
-          <button 
-            onClick={() => initRoleSelection('owner')}
-            className="w-full py-4 px-6 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-md active:scale-95"
-          >
-            Enter Owner Portal
-          </button>
-          
-          <button 
-             onClick={() => initRoleSelection('operator')}
-            className="w-full py-4 px-6 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition-all shadow-md active:scale-95"
-          >
-            Enter Operator Portal
-          </button>
-          
-          <button 
-            onClick={() => initRoleSelection('salesman')}
-            className="w-full py-4 px-6 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition-all shadow-md active:scale-95"
-          >
-            Enter Salesman Portal
-          </button>
+          <div className="flex flex-col items-center justify-center w-full min-h-[50px]">
+            <div id="google-btn-container" className="w-full flex justify-center"></div>
+          </div>
+
+          {errorMsg && (
+            <div className="p-3 bg-red-50 text-red-600 text-xs font-semibold rounded-lg border border-red-100 leading-normal">
+              {errorMsg}
+            </div>
+          )}
+
+          <div className="text-gray-400 text-xs mt-2">
+            Manikyapriya Agencies Dashboard System
+          </div>
         </div>
       </div>
     );
@@ -112,7 +182,7 @@ export default function App() {
                 onNavigateToBilling={() => setSalesmanView('billing')} 
                 onNavigateToCash={() => setSalesmanView('cash')} 
                 onNavigateToPrices={() => setSalesmanView('prices')}
-                onBackToList={() => setActiveSalesman(null)}
+                onBackToList={null}
               />
               <SalesmanStatementHistory salesmanId={activeSalesman._id} />
             </>
@@ -156,7 +226,7 @@ export default function App() {
           {!activeOperator ? (
             <OperatorSelectionList onSelectOperator={(op) => setActiveOperator(op)} />
           ) : (
-            <OperatorDashboard onBackToList={() => setActiveOperator(null)} />
+            <OperatorDashboard onBackToList={null} />
           )}
         </main>
       ) : null}

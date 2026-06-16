@@ -11,6 +11,7 @@ export default function InventoryControlPortal({ onBack }) {
   // AI Workflow States: 'idle' | 'uploading' | 'review' | 'modify'
   const [aiState, setAiState] = useState('idle');
   const [aiExtractedData, setAiExtractedData] = useState([]);
+  const [aiRemarks, setAiRemarks] = useState('');
   const fileInputRef = useRef(null);
 
   const [categoriesData, setCategoriesData] = useState([]);
@@ -77,7 +78,8 @@ export default function InventoryControlPortal({ onBack }) {
     setAiState('uploading');
     try {
       const extracted = await parseInvoiceWithAI(file);
-      setAiExtractedData(extracted);
+      setAiExtractedData(extracted.items || []);
+      setAiRemarks(extracted.remarks || '');
       setAiState('review');
     } catch (error) {
       console.error("Failed to parse invoice", error);
@@ -118,6 +120,7 @@ export default function InventoryControlPortal({ onBack }) {
     return (
       <AIInvoiceReview 
         extractedData={aiExtractedData}
+        remarks={aiRemarks}
         onAccept={handleAiAccept}
         onModify={() => setAiState('modify')}
         onCancel={() => setAiState('idle')}

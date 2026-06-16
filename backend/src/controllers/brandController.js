@@ -92,17 +92,21 @@ ${brandListStr}
 ]
 
 CRITICAL RULES:
-1. ONLY return a raw JSON array. DO NOT wrap it in markdown \`\`\`json blocks. Just the array.
-2. For each extracted item, try to find the closest matching name from the VALID database brands list.
-3. If you find a good match, return an object like: { "brandId": "the-valid-id", "brandName": "the-valid-name", "quantity": number }
-4. If an item on the invoice absolutely does not match anything in our valid list, ignore it.
-5. "quantity" must be a number representing the amount delivered.
+1. ONLY return a raw JSON object. DO NOT wrap it in markdown \`\`\`json blocks.
+2. If you want to tell the user anything, say it in the "remarks" field. Do not include any extra text outside the JSON object.
+3. For each extracted item, try to find the closest matching name from the VALID database brands list.
+4. If you find a good match, add it to the "items" array like: { "brandId": "the-valid-id", "brandName": "the-valid-name", "quantity": number }
+5. If an item on the invoice absolutely does not match anything in our valid list, ignore it.
+6. "quantity" must be a number representing the amount delivered.
 
 Example Output:
-[
-  { "brandId": "60d5ec...", "brandName": "Gold Flake King", "quantity": 10 },
-  { "brandId": "60d5ed...", "brandName": "Classic Milds", "quantity": 5 }
-]
+{
+  "items": [
+    { "brandId": "60d5ec...", "brandName": "Gold Flake King", "quantity": 10 },
+    { "brandId": "60d5ed...", "brandName": "Classic Milds", "quantity": 5 }
+  ],
+  "remarks": "I noticed some items were illegible."
+}
     `;
 
     const response = await ai.models.generateContent({
@@ -125,7 +129,7 @@ Example Output:
         ]
     });
 
-    let jsonString = response.text || "[]";
+    let jsonString = response.text || "{ \"items\": [] }";
     jsonString = jsonString.replace(/```json/g, "").replace(/```/g, "").trim();
     
     let parsedData = [];
