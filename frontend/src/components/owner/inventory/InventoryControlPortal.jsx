@@ -7,6 +7,8 @@ import { getCategories, getBrands, upsertBrand, bulkAddInventory, parseInvoiceWi
 export default function InventoryControlPortal({ onBack }) {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [isAccepting, setIsAccepting] = useState(false);
 
   // AI Workflow States: 'idle' | 'uploading' | 'review' | 'modify'
   const [aiState, setAiState] = useState('idle');
@@ -52,6 +54,7 @@ export default function InventoryControlPortal({ onBack }) {
   }, []);
 
   const handleSaveInventory = async (updatedInventory) => {
+    setIsSyncing(true);
     try {
       // Filter out items that haven't changed to prevent flooding the backend with unnecessary API calls
       const changedItems = updatedInventory.filter((item, index) => {
@@ -68,6 +71,8 @@ export default function InventoryControlPortal({ onBack }) {
     } catch (error) {
       console.error("Failed to sync inventory:", error);
       alert("Failed to sync some inventory items: " + (error.response?.data?.error || error.message || "Unknown error"));
+    } finally {
+      setIsSyncing(false);
     }
   };
 
@@ -92,16 +97,19 @@ export default function InventoryControlPortal({ onBack }) {
   };
 
   const handleAiAccept = async () => {
+    setIsAccepting(true);
     try {
-      setAiState('idle');
       // Execute the bulk backend add operation
       await bulkAddInventory(aiExtractedData);
       
       // Reload inventory to show fresh numbers
       await loadInventory();
+      setAiState('idle');
     } catch (error) {
       console.error("Failed to commit AI inventory", error);
       alert("Failed to sync AI inventory.");
+    } finally {
+      setIsAccepting(false);
     }
   };
 
@@ -110,6 +118,7 @@ export default function InventoryControlPortal({ onBack }) {
       <InventoryModifyScreen 
         mockCategories={categoriesData}
         inventoryState={inventoryState}
+        isSubmitting={isSyncing}
         onSave={handleSaveInventory}
         onCancel={() => setIsEditing(false)}
       />
@@ -121,6 +130,7 @@ export default function InventoryControlPortal({ onBack }) {
       <AIInvoiceReview 
         extractedData={aiExtractedData}
         remarks={aiRemarks}
+        isAccepting={isAccepting}
         onAccept={handleAiAccept}
         onModify={() => setAiState('modify')}
         onCancel={() => setAiState('idle')}

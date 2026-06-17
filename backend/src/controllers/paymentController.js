@@ -32,12 +32,15 @@ export const submitDailyPayment = async (req, res) => {
 export const verifyPaymentByOwner = async (req, res) => {
   try {
     const { id } = req.params;
-    const payment = await Payment.findById(id);
-    if (!payment) return res.status(404).json({ error: "Payment verification profile missing." });
-    if (payment.status === "verified") return res.status(400).json({ error: "Target settlement profile verified." });
-
-    payment.status = "verified";
-    await payment.save();
+    const payment = await Payment.findOneAndUpdate(
+      { _id: id, status: 'unverified' },
+      { $set: { status: 'verified' } },
+      { new: true }
+    );
+    
+    if (!payment) {
+      return res.status(400).json({ error: "Payment verification profile missing or already verified." });
+    }
 
     const salesman = await User.findById(payment.salesmanId);
     if (salesman) {

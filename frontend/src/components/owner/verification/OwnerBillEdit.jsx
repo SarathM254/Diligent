@@ -7,6 +7,7 @@ export default function OwnerBillEdit({ bill, onSaveOverride, onCancel }) {
   const [mockCategories, setMockCategories] = useState([]);
   const [ratesMapping, setRatesMapping] = useState({});
   const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Initialize form with the exact current live values inside this specific bill snapshot
   const { register, handleSubmit, setValue, reset } = useForm({
@@ -71,7 +72,8 @@ export default function OwnerBillEdit({ bill, onSaveOverride, onCancel }) {
     }
   };
 
-  const handleFormSubmission = (data) => {
+  const handleFormSubmission = async (data) => {
+    setIsSubmitting(true);
     // Format only items that have an actual quantity value greater than zero
     const updatedItems = [];
     
@@ -89,7 +91,11 @@ export default function OwnerBillEdit({ bill, onSaveOverride, onCancel }) {
       });
     });
 
-    onSaveOverride(bill._id, updatedItems);
+    try {
+      await onSaveOverride(bill._id, updatedItems);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (loading) {
@@ -167,9 +173,15 @@ export default function OwnerBillEdit({ bill, onSaveOverride, onCancel }) {
         <button
           type="button"
           onClick={handleSubmit(handleFormSubmission)}
-          className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-4 rounded-xl text-sm tracking-wide transition-colors flex items-center justify-center"
+          disabled={isSubmitting}
+          className="w-full bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-white font-bold py-3 px-4 rounded-xl text-sm tracking-wide transition-colors flex items-center justify-center gap-x-2"
         >
-          Done
+          {isSubmitting && (
+            <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          )}
+          <span>{isSubmitting ? 'Saving...' : 'Done'}</span>
         </button>
       </div>
 

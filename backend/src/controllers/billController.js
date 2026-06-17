@@ -84,12 +84,10 @@ export const updateBillStatusByOwner = async (req, res) => {
     const { id } = req.params;
     const { status, items } = req.body;
 
-    const bill = await Bill.findById(id);
+    let bill = await Bill.findById(id);
     if (!bill) return res.status(404).json({ error: 'Bill file matching parameters not found.' });
 
-    const isBecomingDelivered = status === 'delivered' && bill.status !== 'delivered';
-    if (status) bill.status = status;
-
+    // Apply item overrides first in memory if provided
     if (items && Array.isArray(items)) {
       const mappedItems = await Promise.all(items.map(async (item) => {
         const brand = await Brand.findById(item.brandId).catch(() => null);
@@ -101,11 +99,29 @@ export const updateBillStatusByOwner = async (req, res) => {
         };
       }));
       bill.items = mappedItems;
-      // Manually recalculate the total value right now so subsequent ledger updates use the correct value
       bill.totalBillValue = bill.items.reduce((sum, item) => sum + (item.quantity * item.rateSnapShot), 0);
     }
 
-    if (isBecomingDelivered) {
+    if (status === 'delivered' && bill.status !== 'delivered') {
+      // ATOMIC CHECK: Ensure we only mark as delivered once
+      const updatedBill = await Bill.findOneAndUpdate(
+        { _id: id, status: { $ne: 'delivered' } },
+        { 
+          $set: { 
+            status: 'delivered', 
+            items: bill.items, 
+            totalBillValue: bill.totalBillValue 
+          } 
+        },
+        { new: true }
+      );
+
+      if (!updatedBill) {
+        return res.status(400).json({ error: "Bill is already delivered or blocked by another process." });
+      }
+
+      bill = updatedBill; // sync local memory with db truth
+
       const salesman = await User.findById(bill.salesmanId);
       if (salesman) {
         const oldBF = salesman.broughtForwardDebt;
@@ -128,9 +144,11 @@ export const updateBillStatusByOwner = async (req, res) => {
           );
         }
       }
+    } else {
+      // Non-delivery standard updates
+      if (status) bill.status = status;
+      await bill.save();
     }
-
-    await bill.save();
     return res.status(200).json(bill);
   } catch (error) {
     return res.status(500).json({ error: error.message });

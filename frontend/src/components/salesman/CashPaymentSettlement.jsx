@@ -5,6 +5,7 @@ import { submitDailyPayment } from '../../api/paymentApi';
 const DENOMINATIONS = [500, 200, 100, 50, 20, 10];
 
 export default function CashPaymentSettlement({ salesman, onSettlementSuccess, onBack }) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Initialize react-hook-form with structured object layouts
   const { register, handleSubmit, watch, setValue } = useForm({
@@ -56,8 +57,10 @@ export default function CashPaymentSettlement({ salesman, onSettlementSuccess, o
   };
 
   const handleFormSubmission = async (data) => {
+    setIsSubmitting(true);
     if (!salesman || !salesman._id) {
         alert("Salesman identity missing.");
+        setIsSubmitting(false);
         return;
     }
 
@@ -78,6 +81,8 @@ export default function CashPaymentSettlement({ salesman, onSettlementSuccess, o
     } catch (error) {
       console.error("Failed to submit payment:", error);
       alert(error.response?.data?.error || "Error submitting payment.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -177,13 +182,19 @@ export default function CashPaymentSettlement({ salesman, onSettlementSuccess, o
         <button 
           type="button"
           onClick={handleSubmit(handleFormSubmission)}
-          disabled={totalPayment === 0}
+          disabled={totalPayment === 0 || isSubmitting}
           className="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-bold text-sm rounded-xl tracking-wide transition-all duration-150 shadow-xs disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed flex items-center justify-center gap-x-1.5"
         >
-          <span>Submit Cashout Summary</span>
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
+          {isSubmitting ? (
+            <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          ) : (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          )}
+          <span>{isSubmitting ? 'Submitting...' : 'Submit Cashout Summary'}</span>
         </button>
       </div>
 

@@ -15,6 +15,8 @@ export default function VerificationDesk({ onBack }) {
   const [pendingBills, setPendingBills] = useState([]);
   const [pendingCash, setPendingCash] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isSubmittingApprove, setIsSubmittingApprove] = useState(false);
+  const [isSubmittingCash, setIsSubmittingCash] = useState(false);
 
   const loadPendingData = async () => {
     setLoading(true);
@@ -37,23 +39,29 @@ export default function VerificationDesk({ onBack }) {
   }, []);
 
   const handleApproveFinalDelivery = async (billId, items) => {
+    setIsSubmittingApprove(true);
     try {
       await updateBillStatusByOwner(billId, { status: 'delivered', items });
       setPendingBills(prev => prev.filter(b => b._id !== billId));
       setOpenAccordionId(null);
     } catch (error) {
       console.error("Failed to approve bill:", error);
-      alert("Failed to approve bill.");
+      alert(error.response?.data?.error || "Failed to approve bill.");
+    } finally {
+      setIsSubmittingApprove(false);
     }
   };
 
   const handleVerifyCash = async (paymentId) => {
+    setIsSubmittingCash(true);
     try {
       await verifyPaymentByOwner(paymentId);
       setPendingCash(prev => prev.filter(p => p._id !== paymentId));
     } catch (error) {
       console.error("Failed to verify payment:", error);
-      alert("Failed to verify payment.");
+      alert(error.response?.data?.error || "Failed to verify payment.");
+    } finally {
+      setIsSubmittingCash(false);
     }
   };
 
@@ -167,6 +175,7 @@ export default function VerificationDesk({ onBack }) {
                     {isOpen && (
                       <AuditBillView 
                         items={bill.items}
+                        isSubmitting={isSubmittingApprove}
                         onModifyClick={() => setEditingBillInstance(bill)}
                         onApproveClick={() => handleApproveFinalDelivery(bill._id, bill.items)}
                       />
@@ -191,7 +200,18 @@ export default function VerificationDesk({ onBack }) {
                 <span>Physical Cash:</span><span className="font-bold text-slate-800 text-right">₹{cash.totalHandCash.toLocaleString('en-IN')}</span>
                 <span>Digital PhonePe:</span><span className="font-bold text-slate-800 text-right">₹{cash.phonePeAmount.toLocaleString('en-IN')}</span>
               </div>
-              <button type="button" onClick={() => handleVerifyCash(cash._id)} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs py-2 rounded-lg mt-2 shadow-3xs">Verify & Clear</button>
+              <button 
+                type="button" 
+                onClick={() => handleVerifyCash(cash._id)} 
+                disabled={isSubmittingCash}
+                className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold text-xs py-2 rounded-lg mt-2 shadow-3xs flex items-center justify-center"
+              >
+                {isSubmittingCash ? (
+                  <svg className="w-4 h-4 animate-spin text-white" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                ) : 'Verify & Clear'}
+              </button>
             </div>
           ))
         )}

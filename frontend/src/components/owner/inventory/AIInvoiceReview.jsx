@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function AIInvoiceReview({ extractedData, remarks, onAccept, onModify, onCancel }) {
+export default function AIInvoiceReview({ extractedData, remarks, isAccepting, onAccept, onModify, onCancel }) {
   // Extracting active items only
   const activeItems = extractedData.filter(item => item.quantity > 0);
 
@@ -70,10 +70,15 @@ export default function AIInvoiceReview({ extractedData, remarks, onAccept, onMo
           <button
             type="button"
             onClick={onAccept}
-            className="flex-[2] bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl text-sm tracking-wide transition-colors flex items-center justify-center shadow-xs"
-            disabled={activeItems.length === 0}
+            className="flex-[2] bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 disabled:opacity-50 text-white font-bold py-3 px-4 rounded-xl text-sm tracking-wide transition-colors flex items-center justify-center shadow-xs gap-x-2"
+            disabled={activeItems.length === 0 || isAccepting}
           >
-            Accept & Add to Stock
+            {isAccepting && (
+              <svg className="w-4 h-4 animate-spin text-white" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            )}
+            <span>{isAccepting ? 'Syncing...' : 'Accept & Add to Stock'}</span>
           </button>
         </div>
       </div>

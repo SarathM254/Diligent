@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function AuditBillView({ items, onModifyClick, onApproveClick }) {
+export default function AuditBillView({ items, isSubmitting, onModifyClick, onApproveClick }) {
   return (
     <div className="p-4 bg-slate-50/50 space-y-4">
       
@@ -53,12 +53,19 @@ export default function AuditBillView({ items, onModifyClick, onApproveClick }) 
         <button
           type="button"
           onClick={onApproveClick}
-          className="flex-1 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-bold text-xs py-2.5 rounded-lg transition-colors shadow-3xs flex items-center justify-center gap-x-1"
+          disabled={isSubmitting}
+          className="flex-1 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 disabled:opacity-50 text-white font-bold text-xs py-2.5 rounded-lg transition-colors shadow-3xs flex items-center justify-center gap-x-1"
         >
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <span>Delivered</span>
+          {isSubmitting ? (
+            <svg className="w-3.5 h-3.5 animate-spin text-white" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          ) : (
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          )}
+          <span>{isSubmitting ? 'Delivering...' : 'Delivered'}</span>
         </button>
       </div>
 

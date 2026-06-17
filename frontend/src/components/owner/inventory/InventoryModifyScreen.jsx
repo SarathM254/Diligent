@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
-export default function InventoryModifyScreen({ mockCategories, inventoryState, onSave, onCancel }) {
+export default function InventoryModifyScreen({ mockCategories, inventoryState, isSubmitting, onSave, onCancel }) {
   const [expandedCategories, setExpandedCategories] = useState({});
 
   // Initialize form with 0 (empty) for all inputs
@@ -121,16 +121,23 @@ export default function InventoryModifyScreen({ mockCategories, inventoryState, 
           <button
             type="button"
             onClick={handleSubmit((data) => handleFormAction('remove', data))}
-            className="flex-1 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 font-bold py-3 px-4 rounded-xl text-sm tracking-wide transition-colors flex items-center justify-center"
+            disabled={isSubmitting}
+            className="flex-1 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 disabled:opacity-50 font-bold py-3 px-4 rounded-xl text-sm tracking-wide transition-colors flex items-center justify-center gap-x-2"
           >
-            Remove
+            {isSubmitting ? 'Syncing...' : 'Remove'}
           </button>
           <button
             type="button"
             onClick={handleSubmit((data) => handleFormAction('add', data))}
-            className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl text-sm tracking-wide transition-colors flex items-center justify-center shadow-xs"
+            disabled={isSubmitting}
+            className="flex-1 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold py-3 px-4 rounded-xl text-sm tracking-wide transition-colors flex items-center justify-center shadow-xs gap-x-2"
           >
-            Add
+            {isSubmitting && (
+              <svg className="w-4 h-4 animate-spin text-white" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            )}
+            <span>{isSubmitting ? 'Syncing...' : 'Add'}</span>
           </button>
         </div>
       </div>

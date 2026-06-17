@@ -9,6 +9,7 @@ export default function SalesmanBillingScreen({ salesman, onBack }) {
     const [liveCategories, setLiveCategories] = useState([]);
     const [liveRates, setLiveRates] = useState({});
     const [loading, setLoading] = useState(true);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const { register, handleSubmit, watch, setValue, reset } = useForm({});
 
@@ -115,6 +116,7 @@ export default function SalesmanBillingScreen({ salesman, onBack }) {
     };
 
     const handleFinalSubmit = async () => {
+        setIsSubmitting(true);
         try {
             if (!salesman || !salesman._id) {
                 alert("Salesman identity missing.");
@@ -131,6 +133,8 @@ export default function SalesmanBillingScreen({ salesman, onBack }) {
         } catch (error) {
             console.error("Submission error:", error);
             alert(error.response?.data?.error || "Failed to submit bill. It might be locked by management.");
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -205,9 +209,15 @@ export default function SalesmanBillingScreen({ salesman, onBack }) {
                     <button
                         type="button"
                         onClick={handleFinalSubmit}
-                        className="w-full bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold py-3 px-4 rounded-xl text-sm tracking-wide transition-all duration-150 shadow-xs flex items-center justify-center"
+                        disabled={isSubmitting}
+                        className="w-full bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-50 text-white font-bold py-3 px-4 rounded-xl text-sm tracking-wide transition-all duration-150 shadow-xs flex items-center justify-center gap-x-2"
                     >
-                        Confirm & Submit Run
+                        {isSubmitting && (
+                            <svg className="w-4 h-4 animate-spin text-white" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                        )}
+                        <span>{isSubmitting ? 'Submitting...' : 'Confirm & Submit Run'}</span>
                     </button>
                 )}
             </div>
