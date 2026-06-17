@@ -105,6 +105,16 @@ export default function VerificationDesk({ onBack }) {
           <h2 className="text-base font-bold text-slate-900 tracking-tight">Verification Desk</h2>
           <p className="text-[11px] text-slate-400">Final management sign-off for ledger reconciliation</p>
         </div>
+        <button 
+          type="button" 
+          onClick={loadPendingData} 
+          disabled={loading}
+          className="ml-auto p-2 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-100 transition-colors disabled:opacity-50"
+        >
+          <svg className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+        </button>
       </div>
 
       {/* TWIN-TAB SEGMENT CONTROL LAYER */}
@@ -138,7 +148,14 @@ export default function VerificationDesk({ onBack }) {
         {/* TAB WORKFLOW SECTION: LOADING BILL MANAGEMENT DRAWER */}
         {activeTab === 'bills' && (
           <>
-            {pendingBills.length === 0 ? (
+            {loading ? (
+              <div className="text-center py-12 flex flex-col items-center justify-center">
+                <svg className="w-8 h-8 animate-spin text-indigo-500 mb-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <p className="text-sm font-bold text-slate-600 animate-pulse">Fetching latest bills...</p>
+              </div>
+            ) : pendingBills.length === 0 ? (
               <div className="text-center py-12 bg-white rounded-2xl border border-slate-100 p-4">
                 <p className="text-sm font-bold text-slate-700">All Bills Audited</p>
               </div>
