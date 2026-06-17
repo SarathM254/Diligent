@@ -34,3 +34,8 @@ export const deleteUser = async (id) => {
   const response = await apiClient.delete(`/users/${id}`);
   return response.data;
 };
+
+export const getSalesmanDailyStatus = async (salesmanId) => {
+  const response = await apiClient.get(`/users/${salesmanId}/daily-status`);
+  return response.data;
+};

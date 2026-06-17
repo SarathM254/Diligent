@@ -1,6 +1,25 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { getSalesmanDailyStatus } from '../../api/userApi';
 
 export default function SalesmanProfileCard({ salesman, onNavigateToBilling, onNavigateToCash, onNavigateToPrices, onBackToList }) {
+  const [billStatus, setBillStatus] = useState('Loading...');
+  const [cashStatus, setCashStatus] = useState('Loading...');
+
+  useEffect(() => {
+    if (salesman && salesman._id) {
+      getSalesmanDailyStatus(salesman._id)
+        .then(data => {
+          setBillStatus(data.billStatus);
+          setCashStatus(data.cashStatus);
+        })
+        .catch(err => {
+          console.error("Failed to load daily status", err);
+          setBillStatus('Error');
+          setCashStatus('Error');
+        });
+    }
+  }, [salesman]);
+
   if (!salesman) return null;
 
   let symb = "";
@@ -65,8 +84,12 @@ export default function SalesmanProfileCard({ salesman, onNavigateToBilling, onN
               Bill Status:
             </span>
             
-            <div className="px-3 py-1.5 rounded-full font-bold text-base tracking-tight bg-slate-300 text-slate-600 border border-slate-600">
-              Unverified
+            <div className={`px-3 py-1.5 rounded-full font-bold text-base tracking-tight ${
+              billStatus === 'Verified' ? 'bg-emerald-100 text-emerald-700 border border-emerald-600' :
+              billStatus === 'Unverified' ? 'bg-amber-100 text-amber-700 border border-amber-500' :
+              'bg-slate-300 text-slate-600 border border-slate-600'
+            }`}>
+              {billStatus}
             </div>
           </div>
           <div className="flex items-center justify-between bg-slate-50 rounded-xl p-3.5 px-7 border border-slate-100">
@@ -74,8 +97,12 @@ export default function SalesmanProfileCard({ salesman, onNavigateToBilling, onN
               Cash Status:
             </span>
             
-            <div className="px-3 py-1.5 rounded-full font-bold text-base tracking-tight bg-slate-300 text-slate-600 border border-slate-600">
-              Unverified
+            <div className={`px-3 py-1.5 rounded-full font-bold text-base tracking-tight ${
+              cashStatus === 'Verified' ? 'bg-emerald-100 text-emerald-700 border border-emerald-600' :
+              cashStatus === 'Unverified' ? 'bg-amber-100 text-amber-700 border border-amber-500' :
+              'bg-slate-300 text-slate-600 border border-slate-600'
+            }`}>
+              {cashStatus}
             </div>
           </div> 
 

@@ -1,5 +1,8 @@
 import User from "../models/User.js";
 import LedgerTransaction from "../models/LedgerTransaction.js";
+import Bill from "../models/Bill.js";
+import Payment from "../models/Payment.js";
+import AppSettings from "../models/AppSettings.js";
 
 export const getAllSalesmen = async (req, res) => {
   try {
@@ -104,6 +107,33 @@ export const deleteUser = async (req, res) => {
     if (!user) return res.status(404).json({ error: "User not found." });
     
     return res.status(200).json({ success: true, message: "User deleted successfully." });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+export const getSalesmanDailyStatus = async (req, res) => {
+  try {
+    const { salesmanId } = req.params;
+    let settings = await AppSettings.findOne({ key: "global_config" });
+    const operationalDate = settings ? settings.operationalDate : new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+
+    const bill = await Bill.findOne({ salesmanId, billingDate: operationalDate }).lean();
+    const payment = await Payment.findOne({ salesmanId, paymentDate: operationalDate }).lean();
+
+    let billStatus = 'Not Submitted';
+    if (bill) {
+      if (bill.status === 'delivered' || bill.status === 'billed') billStatus = 'Verified';
+      else if (bill.status === 'submitted') billStatus = 'Unverified';
+    }
+
+    let cashStatus = 'Not Submitted';
+    if (payment) {
+      if (payment.status === 'verified') cashStatus = 'Verified';
+      else if (payment.status === 'unverified') cashStatus = 'Unverified';
+    }
+
+    return res.status(200).json({ billStatus, cashStatus });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
