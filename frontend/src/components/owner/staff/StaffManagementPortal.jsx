@@ -6,6 +6,7 @@ export default function StaffManagementPortal({ onBack }) {
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [editingStaff, setEditingStaff] = useState(null); 
   const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // --- LOCAL FORM FIELDS BUFFER STATE ---
   const [formData, setFormData] = useState({ name: '', email: '', code: '', role: 'Salesman' });
@@ -77,7 +78,9 @@ export default function StaffManagementPortal({ onBack }) {
   const handleCommitFormSubmission = async (e) => {
     e.preventDefault();
     if (!formData.name.trim() || !formData.email.trim() || (formData.role === 'Salesman' && !formData.code.trim())) return;
+    if (isSubmitting) return;
 
+    setIsSubmitting(true);
     if (editingStaff) {
       try {
         const payload = {
@@ -92,6 +95,8 @@ export default function StaffManagementPortal({ onBack }) {
       } catch (error) {
         console.error("Failed to update user:", error);
         alert(error.response?.data?.error || "Error updating user.");
+      } finally {
+        setIsSubmitting(false);
       }
     } else {
       // INGESTION NEW PROFILE: Call Backend API
@@ -111,6 +116,8 @@ export default function StaffManagementPortal({ onBack }) {
       } catch (error) {
         console.error("Failed to register user:", error);
         alert(error.response?.data?.error || "Error creating user. They might already exist.");
+      } finally {
+        setIsSubmitting(false);
       }
     }
   };
@@ -284,9 +291,15 @@ export default function StaffManagementPortal({ onBack }) {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-bold text-xs py-2.5 rounded-xl transition-all shadow-xs"
+                  disabled={isSubmitting}
+                  className="flex-1 flex items-center justify-center gap-x-2 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 disabled:opacity-50 text-white font-bold text-xs py-2.5 rounded-xl transition-all shadow-xs"
                 >
-                  {editingStaff ? "Save Overrides" : "Initialize Account"}
+                  {isSubmitting && (
+                    <svg className="w-3.5 h-3.5 animate-spin text-white" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                  )}
+                  <span>{isSubmitting ? "Processing..." : (editingStaff ? "Save Overrides" : "Initialize Account")}</span>
                 </button>
               </div>
 
