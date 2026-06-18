@@ -112,7 +112,7 @@ export default function CashPaymentSettlement({ salesman, onSettlementSuccess, o
       
 
       {/* Core Matrix Workings Section */}
-      <div className="p-5 space-y-5 flex-1 overflow-y-auto">
+      <div className="p-4 space-y-4 flex-1 overflow-y-auto">
         
         {/* Physical Denominations Segment Layout */}
         <div>
@@ -123,37 +123,37 @@ export default function CashPaymentSettlement({ salesman, onSettlementSuccess, o
             Physical Cash Denominations
           </h3>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             {DENOMINATIONS.map(denom => (
               <div 
                 key={denom} 
-                className="flex items-center bg-slate-50 border border-slate-200 rounded-xl p-4 transition-all duration-150 focus-within:border-indigo-500 focus-within:bg-white focus-within:shadow-xs"
+                className="flex items-center bg-slate-50 border border-slate-200 rounded-xl p-3 transition-all duration-150 focus-within:border-indigo-500 focus-within:bg-white focus-within:shadow-xs"
               >
-                <span className="w-11 text-lg font-bold text-emerald-700 pl-1">₹{denom}</span>
-                <span className="text-slate-300 text-[18px] font-semibold select-none px-2">×</span>
+                <span className="w-10 text-base font-bold text-emerald-700 pl-1">₹{denom}</span>
+                <span className="text-slate-300 text-base font-semibold select-none px-2">×</span>
                 <input 
                   type="number"
                   inputMode="numeric"
                   min="0"
                   placeholder="0"
                   onKeyDown={blockDecimalAndSigns}
-                  className="w-full text-right font-bold text-slate-800 bg-transparent border-none outline-none pr-1 focus:ring-0 text-md placeholder:text-slate-300"
+                  className="w-full text-right font-bold text-slate-800 bg-transparent border-none outline-none pr-1 focus:ring-0 text-sm placeholder:text-slate-300"
                   {...register(`cashBreakdown.${denom}`)}
                 />
               </div>
             ))}
             
             {/* Loose Change Input Field */}
-            <div className="col-span-2 flex items-center bg-slate-50 border border-slate-200 rounded-xl p-4 transition-all duration-150 focus-within:border-indigo-500 focus-within:bg-white focus-within:shadow-xs">
-              <span className="flex-1 text-lg font-bold text-emerald-700 pl-1">Loose Change (₹)</span>
-              <span className="text-slate-300 text-[18px] font-semibold select-none px-2">+</span>
+            <div className="col-span-2 flex items-center bg-slate-50 border border-slate-200 rounded-xl p-3 transition-all duration-150 focus-within:border-indigo-500 focus-within:bg-white focus-within:shadow-xs">
+              <span className="flex-1 text-base font-bold text-emerald-700 pl-1">Loose Change (₹)</span>
+              <span className="text-slate-300 text-base font-semibold select-none px-2">+</span>
               <input 
                 type="number"
                 inputMode="numeric"
                 min="0"
                 placeholder="0"
                 onKeyDown={blockDecimalAndSigns}
-                className="w-24 text-right font-bold text-slate-800 bg-transparent border-none outline-none pr-1 focus:ring-0 text-md placeholder:text-slate-300"
+                className="w-24 text-right font-bold text-slate-800 bg-transparent border-none outline-none pr-1 focus:ring-0 text-sm placeholder:text-slate-300"
                 {...register('changeAmount')}
               />
             </div>

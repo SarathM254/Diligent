@@ -31,7 +31,7 @@ export default function SalesmanProfileCard({ salesman, onNavigateToBilling, onN
   return (
     <div className="w-full max-w-md bg-slate-50">
       {/* Container Card */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5">
+      <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgb(0,0,0,0.03)] border border-slate-200/60 p-4">
         
         {/* Header Layout */}
         <div className="flex items-start justify-between">
@@ -57,17 +57,17 @@ export default function SalesmanProfileCard({ salesman, onNavigateToBilling, onN
         </div>
 
         {/* Info Divider Line */}
-        <hr className="my-4 border-slate-200" />
+        <hr className="my-3.5 border-slate-100" />
 
         {/* Financial metrics display box */} 
 
-        <div className='flex flex-col space-y-3'>
-          <div className="flex items-center justify-between bg-slate-50 rounded-xl p-3.5 px-7 border border-slate-100">
-            <span className="text-xl font-bold text-slate-700 tracking-wide">
-              BF:
+        <div className='flex flex-col space-y-2.5'>
+          <div className="flex items-center justify-between bg-slate-50/50 rounded-xl p-3 px-4 border border-slate-100/50">
+            <span className="text-sm font-semibold text-slate-500 tracking-wide">
+              BF Balance
             </span>
             {/* Dynamic color warning: Green if 0, Red badge if debt exists */}
-            <div className={`px-3 py-1.5 rounded-lg font-bold text-base tracking-tight ${salesman.bf > 0
+            <div className={`px-2.5 py-1 rounded-lg font-bold text-sm tracking-tight ${salesman.bf > 0
                 ? 'bg-rose-50 text-rose-700 border border-rose-100'
                 : 'bg-emerald-50 text-emerald-700 border border-emerald-100'
               }`}>
@@ -75,47 +75,43 @@ export default function SalesmanProfileCard({ salesman, onNavigateToBilling, onN
             </div>
           </div>
 
-
-
-{/* this part needs to be remvoed from comments */}
-
-           <div className="flex items-center justify-between bg-slate-50 rounded-xl p-3.5 px-7 border border-slate-100">
-            <span className="text-xl font-bold text-slate-700 tracking-wide">
-              Bill Status:
+           <div className="flex items-center justify-between bg-slate-50/50 rounded-xl p-3 px-4 border border-slate-100/50">
+            <span className="text-sm font-semibold text-slate-500 tracking-wide">
+              Bill Status
             </span>
             
-            <div className={`px-3 py-1.5 rounded-full font-bold text-base tracking-tight ${
-              billStatus === 'Verified' ? 'bg-emerald-100 text-emerald-700 border border-emerald-600' :
-              billStatus === 'Unverified' ? 'bg-amber-100 text-amber-700 border border-amber-500' :
-              'bg-slate-300 text-slate-600 border border-slate-600'
+            <div className={`px-2.5 py-1 rounded-full font-bold text-xs tracking-tight uppercase ${
+              billStatus === 'Verified' ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' :
+              billStatus === 'Unverified' ? 'bg-amber-50 text-amber-600 border border-amber-200' :
+              'bg-slate-100 text-slate-500 border border-slate-200'
             }`}>
               {billStatus}
             </div>
           </div>
-          <div className="flex items-center justify-between bg-slate-50 rounded-xl p-3.5 px-7 border border-slate-100">
-            <span className="text-xl font-bold text-slate-700 tracking-wide">
-              Cash Status:
+          <div className="flex items-center justify-between bg-slate-50/50 rounded-xl p-3 px-4 border border-slate-100/50">
+            <span className="text-sm font-semibold text-slate-500 tracking-wide">
+              Cash Status
             </span>
             
-            <div className={`px-3 py-1.5 rounded-full font-bold text-base tracking-tight ${
-              cashStatus === 'Verified' ? 'bg-emerald-100 text-emerald-700 border border-emerald-600' :
-              cashStatus === 'Unverified' ? 'bg-amber-100 text-amber-700 border border-amber-500' :
-              'bg-slate-300 text-slate-600 border border-slate-600'
+            <div className={`px-2.5 py-1 rounded-full font-bold text-xs tracking-tight uppercase ${
+              cashStatus === 'Verified' ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' :
+              cashStatus === 'Unverified' ? 'bg-amber-50 text-amber-600 border border-amber-200' :
+              'bg-slate-100 text-slate-500 border border-slate-200'
             }`}>
               {cashStatus}
             </div>
           </div> 
 
           <div className="flex items-center justify-between rounded-xl space-x-2">
-            <button type="button" onClick={onNavigateToBilling} className="flex-1 flex justify-center px-3 py-2 rounded-lg font-bold text-base tracking-tight bg-indigo-600 text-indigo-50 border border-emerald-100 transition duration-150 ease-in-out active:scale-95 active:bg-indigo-700">
+            <button type="button" onClick={onNavigateToBilling} className="flex-1 flex justify-center px-3 py-2.5 rounded-lg font-bold text-sm tracking-tight bg-indigo-600 text-white shadow-[0_2px_10px_rgb(79,70,229,0.2)] transition duration-150 ease-in-out active:scale-95 active:bg-indigo-700">
               Bill
             </button>
-            <button type="button" onClick={onNavigateToCash} className="flex-1 flex justify-center px-3 py-2 rounded-lg font-bold text-base tracking-tight bg-emerald-600 text-emerald-50 border border-emerald-100 transition duration-150 ease-in-out active:scale-95 active:bg-emerald-700">
+            <button type="button" onClick={onNavigateToCash} className="flex-1 flex justify-center px-3 py-2.5 rounded-lg font-bold text-sm tracking-tight bg-emerald-600 text-white shadow-[0_2px_10px_rgb(5,150,105,0.2)] transition duration-150 ease-in-out active:scale-95 active:bg-emerald-700">
               Cash Pay
             </button>
-            <button type="button" onClick={onNavigateToPrices} className={`flex-1 flex justify-center px-3 py-2 rounded-lg font-bold text-base tracking-tight transition duration-150 ease-in-out active:scale-95 ${salesman.bf > 0
-                ? 'bg-rose-700 text-rose-50 border border-rose-100 active:bg-rose-800'
-                : 'bg-emerald-50 text-emerald-700 border border-emerald-100 active:bg-emerald-100'
+            <button type="button" onClick={onNavigateToPrices} className={`flex-1 flex justify-center px-3 py-2.5 rounded-lg font-bold text-sm tracking-tight transition duration-150 ease-in-out active:scale-95 ${salesman.bf > 0
+                ? 'bg-rose-50 text-rose-700 border border-rose-100 active:bg-rose-100'
+                : 'bg-slate-50 text-slate-600 border border-slate-200 active:bg-slate-100'
               }`}>
               Prices
             </button>

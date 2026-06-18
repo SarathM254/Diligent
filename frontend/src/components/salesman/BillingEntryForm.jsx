@@ -23,9 +23,9 @@ export default function BillingEntryForm({
             <button
               type="button"
               onClick={() => toggleCategory(category.id)}
-              className="w-full px-4 py-3.5 flex items-center justify-between bg-white hover:bg-slate-50/50 text-left transition-colors duration-150"
+              className="w-full px-3.5 py-3 flex items-center justify-between bg-white hover:bg-slate-50 text-left transition-colors duration-150"
             >
-              <span className="text-md font-bold text-slate-800 tracking-tight">
+              <span className="text-sm font-bold text-slate-800 tracking-tight">
                 {category.name}
               </span>
               
@@ -44,11 +44,11 @@ export default function BillingEntryForm({
                 {category.brands.map((brand) => (
                   <div 
                     key={brand.id} 
-                    className="px-4 py-3 flex items-center justify-between gap-x-4 bg-white"
+                    className="px-3.5 py-2 flex items-center justify-between gap-x-4 bg-white"
                   >
                     {/* Left Column Brand Product Descriptor */}
                     <div className="space-y-0.5">
-                      <span className="text-md font-medium text-slate-800 leading-snug">
+                      <span className="text-sm font-medium text-slate-800 leading-snug">
                         {brand.name}
                       </span>
                     </div>
@@ -60,7 +60,7 @@ export default function BillingEntryForm({
                           type="number"
                           step="any"
                           placeholder="0"
-                          className="w-full text-right font-semibold text-slate-900 bg-slate-50/80 border border-slate-200 rounded-lg py-1.5 pr-7 pl-2.5 text-sm focus:outline-hidden focus:border-indigo-500 focus:bg-white transition-all duration-150"
+                          className="w-full text-right font-semibold text-slate-900 bg-slate-50/80 border border-slate-200 rounded-lg py-1 pr-7 pl-2.5 text-sm focus:outline-hidden focus:border-indigo-500 focus:bg-white transition-all duration-150"
                           {...register(brand.id)}
                           onBlur={(e) => handleBlurSanitization(e, brand.id)}
                         />

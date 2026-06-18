@@ -143,7 +143,7 @@ export default function VerificationDesk({ onBack }) {
       </div>
 
       {/* FEED LIST PIPELINE CONTENT HOUSING CONTAINER */}
-      <div className="flex-1 p-4 overflow-y-auto space-y-3">
+      <div className="flex-1 p-3 overflow-y-auto space-y-2.5">
         
         {/* TAB WORKFLOW SECTION: LOADING BILL MANAGEMENT DRAWER */}
         {activeTab === 'bills' && (
@@ -170,11 +170,11 @@ export default function VerificationDesk({ onBack }) {
                     <button
                       type="button"
                       onClick={() => setOpenAccordionId(isOpen ? null : bill._id)}
-                      className="w-full px-4 py-4 flex items-center justify-between text-left hover:bg-slate-50/40 transition-colors"
+                      className="w-full px-3.5 py-3 flex items-center justify-between text-left hover:bg-slate-50 transition-colors"
                     >
                       <div className="space-y-0.5">
                         <span className="text-sm font-bold text-slate-800 tracking-tight">{bill.salesmanName}</span>
-                        <p className="text-xs text-slate-400">{bill.items.length} Product lines cataloged</p>
+                        <p className="text-[11px] text-slate-400">{bill.items.length} Product lines cataloged</p>
                       </div>
 
                       {/* Right End Aligned High Contrast Currency Weight Tracker */}
@@ -208,8 +208,8 @@ export default function VerificationDesk({ onBack }) {
         {/* TAB WORKFLOW SECTION: PRE-EXISTING CASH RECONCILIATION */}
         {activeTab === 'cash' && (
           pendingCash.map(cash => (
-            <div key={cash._id} className="bg-white rounded-xl border border-slate-200/60 p-4 shadow-3xs space-y-3">
-              <div className="flex justify-between items-start border-b border-slate-50 pb-2.5">
+            <div key={cash._id} className="bg-white rounded-xl border border-slate-200/60 p-3.5 shadow-xs space-y-2.5">
+              <div className="flex justify-between items-start border-b border-slate-50 pb-2">
                 <h4 className="text-sm font-bold text-slate-800 tracking-tight">{cash.salesmanName}</h4>
                 <span className="text-base font-black text-slate-900 tracking-tight">₹{cash.totalPayment.toLocaleString('en-IN')}</span>
               </div>
