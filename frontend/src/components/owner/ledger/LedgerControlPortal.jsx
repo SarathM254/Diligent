@@ -7,6 +7,7 @@ export default function LedgerControlPortal({ onBack }) {
   const [inputAmount, setInputAmount] = useState('');
   const [adjustmentNote, setAdjustmentNote] = useState('');
   const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Live Salesmen master records array
   const [salesmenList, setSalesmenList] = useState([]);
@@ -50,11 +51,14 @@ export default function LedgerControlPortal({ onBack }) {
 
   const handleCommitLedgerAdjustment = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
+    
     const targetAmount = parseInt(inputAmount, 10);
     if (isNaN(targetAmount) || targetAmount <= 0) return;
 
     const changeFactor = modalContext.type === 'increase' ? targetAmount : -targetAmount;
 
+    setIsSubmitting(true);
     try {
       await adjustLedgerBalance({
         userId: modalContext.salesman._id,
@@ -66,6 +70,8 @@ export default function LedgerControlPortal({ onBack }) {
     } catch (error) {
       console.error("Failed to adjust ledger:", error);
       alert("Failed to adjust ledger balance");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -214,13 +220,19 @@ export default function LedgerControlPortal({ onBack }) {
                 </button>
                 <button
                   type="submit"
-                  className={`flex-1 text-white font-bold text-xs py-2.5 rounded-xl transition-all shadow-xs ${
+                  disabled={isSubmitting}
+                  className={`flex-1 flex items-center justify-center gap-x-2 text-white font-bold text-xs py-2.5 rounded-xl transition-all shadow-xs disabled:opacity-50 ${
                     modalContext.type === 'increase'
                       ? 'bg-rose-600 hover:bg-rose-700 active:bg-rose-800'
                       : 'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800'
                   }`}
                 >
-                  Apply Change
+                  {isSubmitting && (
+                    <svg className="w-3.5 h-3.5 animate-spin text-white" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                  )}
+                  <span>{isSubmitting ? 'Applying...' : 'Apply Change'}</span>
                 </button>
               </div>
 

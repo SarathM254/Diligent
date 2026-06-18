@@ -13,6 +13,7 @@ export default function OwnerDashboard({ onNavigate }) {
     totalSalesmanBFDebt: 0,
     stockDelivered: { billed: 0, unbilled: 0 }
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchStats = async () => {
     try {
@@ -64,8 +65,9 @@ export default function OwnerDashboard({ onNavigate }) {
 
   // --- SECTION 3: RE-ENGINEERED DATE ADVANCE HOOK ---
   const handleSystemDatePushForward = async () => {
-    if (isAlreadyAdvanced) return;
+    if (isAlreadyAdvanced || isSubmitting) return;
 
+    setIsSubmitting(true);
     try {
       const res = await pushGlobalSystemDate();
       if (res.data && res.data.operationalDate) {
@@ -82,6 +84,8 @@ export default function OwnerDashboard({ onNavigate }) {
     } catch (err) {
       console.error("Failed to push global date", err);
       alert("Failed to advance system date");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -121,12 +125,12 @@ export default function OwnerDashboard({ onNavigate }) {
           
           <button
             type="button"
-            disabled={isAlreadyAdvanced}
+            disabled={isAlreadyAdvanced || isSubmitting}
             onClick={handleSystemDatePushForward}
             className={`font-bold text-xs py-2.5 px-3.5 rounded-xl tracking-wide transition-all duration-150 shadow-xs flex items-center gap-x-1.5 ${
               isAlreadyAdvanced 
                 ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed shadow-none' 
-                : 'bg-slate-900 hover:bg-slate-800 active:bg-black text-white'
+                : 'bg-slate-900 hover:bg-slate-800 active:bg-black text-white disabled:opacity-50'
             }`}
           >
             {isAlreadyAdvanced ? (
@@ -134,6 +138,13 @@ export default function OwnerDashboard({ onNavigate }) {
                 <span>Advanced</span>
                 <svg className="w-3.5 h-3.5 text-emerald-600 stroke-[3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+              </>
+            ) : isSubmitting ? (
+              <>
+                <span>Advancing...</span>
+                <svg className="w-3.5 h-3.5 animate-spin" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
               </>
             ) : (

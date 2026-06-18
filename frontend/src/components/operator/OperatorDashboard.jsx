@@ -6,6 +6,7 @@ export default function OperatorDashboard({ onBackToList }) {
   const [openBillId, setOpenBillId] = useState(null);
   const [temporaryCheckedBills, setTemporaryCheckedBills] = useState({});
   const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Array containing the state-aware 'billStatus' field
   const [pendingBills, setPendingBills] = useState([]);
@@ -42,6 +43,8 @@ export default function OperatorDashboard({ onBackToList }) {
     status to "billed", triggering permanent view constraints on borders and inputs.
   */
   const commitDispatchLock = async (billId) => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
       await updateBillStatusByOwner(billId, { status: 'billed' });
       setPendingBills(prevBills => 
@@ -53,6 +56,8 @@ export default function OperatorDashboard({ onBackToList }) {
     } catch (error) {
       console.error("Failed to commit dispatch:", error);
       alert("Failed to commit dispatch.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -146,13 +151,22 @@ export default function OperatorDashboard({ onBackToList }) {
                   ) : (
                     <button
                       type="button"
+                      disabled={isSubmitting}
                       onClick={() => commitDispatchLock(bill._id)}
-                      className="bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-xs py-2 px-3.5 rounded-lg tracking-wide shadow-xs transition-all duration-150 flex items-center gap-x-1"
+                      className="bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-50 text-white font-bold text-xs py-2 px-3.5 rounded-lg tracking-wide shadow-xs transition-all duration-150 flex items-center gap-x-1"
                     >
-                      <span>Confirm</span>
-                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002-2.25v-6.75a2.25 2.25 0 00-2-2.25H6.75a2.25 2.25 0 00-2 2.25v6.75a2.25 2.25 0 002 2.25z" />
-                      </svg>
+                      {isSubmitting ? (
+                        <svg className="w-3.5 h-3.5 animate-spin" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                      ) : (
+                        <>
+                          <span>Confirm</span>
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002-2.25v-6.75a2.25 2.25 0 00-2-2.25H6.75a2.25 2.25 0 00-2 2.25v6.75a2.25 2.25 0 002 2.25z" />
+                          </svg>
+                        </>
+                      )}
                     </button>
                   )}
                 </div>
