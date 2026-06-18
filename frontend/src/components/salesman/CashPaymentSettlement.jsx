@@ -11,6 +11,7 @@ export default function CashPaymentSettlement({ salesman, onSettlementSuccess, o
   const { register, handleSubmit, watch, setValue } = useForm({
     defaultValues: {
       cashBreakdown: DENOMINATIONS.reduce((acc, d) => ({ ...acc, [d]: "" }), {}),
+      changeAmount: "",
       phonePeAmount: ""
     }
   });
@@ -33,7 +34,7 @@ export default function CashPaymentSettlement({ salesman, onSettlementSuccess, o
   const totalHandCash = DENOMINATIONS.reduce((sum, denom) => {
     const count = parseInt(formValues.cashBreakdown?.[denom] || 0, 10);
     return sum + (denom * count);
-  }, 0);
+  }, parseInt(formValues.changeAmount || 0, 10));
 
   const phonePeAmountNum = parseFloat(formValues.phonePeAmount || 0);
   const totalPayment = totalHandCash + (isNaN(phonePeAmountNum) ? 0 : phonePeAmountNum);
@@ -70,6 +71,7 @@ export default function CashPaymentSettlement({ salesman, onSettlementSuccess, o
         acc[d] = parseInt(data.cashBreakdown[d] || 0, 10);
         return acc;
       }, {}),
+      changeAmount: parseInt(data.changeAmount || 0, 10),
       phonePeAmount: parseFloat(data.phonePeAmount || 0)
     };
 
@@ -140,6 +142,21 @@ export default function CashPaymentSettlement({ salesman, onSettlementSuccess, o
                 />
               </div>
             ))}
+            
+            {/* Loose Change Input Field */}
+            <div className="col-span-2 flex items-center bg-slate-50 border border-slate-200 rounded-xl p-4 transition-all duration-150 focus-within:border-indigo-500 focus-within:bg-white focus-within:shadow-xs">
+              <span className="flex-1 text-lg font-bold text-emerald-700 pl-1">Loose Change (₹)</span>
+              <span className="text-slate-300 text-[18px] font-semibold select-none px-2">+</span>
+              <input 
+                type="number"
+                inputMode="numeric"
+                min="0"
+                placeholder="0"
+                onKeyDown={blockDecimalAndSigns}
+                className="w-24 text-right font-bold text-slate-800 bg-transparent border-none outline-none pr-1 focus:ring-0 text-md placeholder:text-slate-300"
+                {...register('changeAmount')}
+              />
+            </div>
           </div>
 
           {/* Cash Subtotal Balance Notification Bar */}

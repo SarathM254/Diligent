@@ -5,7 +5,7 @@ import AppSettings from "../models/AppSettings.js";
 
 export const submitDailyPayment = async (req, res) => {
   try {
-    let { cashBreakdown, phonePeAmount, salesmanId } = req.body;
+    let { cashBreakdown, phonePeAmount, changeAmount, salesmanId } = req.body;
 
     const config = await AppSettings.findOne({ key: "global_config" });
     const paymentDate = config ? config.operationalDate : new Date().toISOString().split('T')[0];
@@ -20,6 +20,7 @@ export const submitDailyPayment = async (req, res) => {
 
     payment.cashBreakdown = cashBreakdown || { 500: 0, 200: 0, 100: 0, 50: 0, 20: 0, 10: 0 };
     payment.phonePeAmount = Number(phonePeAmount || 0);
+    payment.changeAmount = Number(changeAmount || 0);
     payment.status = "unverified";
 
     await payment.save();
@@ -74,6 +75,7 @@ export const getPendingPaymentsForAdmin = async (req, res) => {
       status: p.status,
       totalHandCash: p.totalHandCash,
       phonePeAmount: p.phonePeAmount,
+      changeAmount: p.changeAmount,
       cashBreakdown: p.cashBreakdown
     })));
   } catch (error) {

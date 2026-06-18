@@ -23,6 +23,10 @@ const paymentSchema = new mongoose.Schema(
       type: Number,
       default: 0
     },
+    changeAmount: {
+      type: Number,
+      default: 0
+    },
     phonePeAmount: {
       type: Number,
       default: 0
@@ -57,7 +61,8 @@ paymentSchema.pre("save", function () {
     ((cb[100] || 0) * 100) +
     ((cb[50] || 0) * 50) +
     ((cb[20] || 0) * 20) +
-    ((cb[10] || 0) * 10);
+    ((cb[10] || 0) * 10) +
+    (this.changeAmount || 0);
 
   this.totalPayment = this.totalHandCash + (this.phonePeAmount || 0);
 });

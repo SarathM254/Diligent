@@ -215,6 +215,12 @@ export default function VerificationDesk({ onBack }) {
               </div>
               <div className="grid grid-cols-2 text-xs gap-y-1.5 text-slate-500">
                 <span>Physical Cash:</span><span className="font-bold text-slate-800 text-right">₹{cash.totalHandCash.toLocaleString('en-IN')}</span>
+                {cash.changeAmount > 0 && (
+                  <>
+                    <span className="text-[10px] pl-2 text-slate-400">↳ Loose Change:</span>
+                    <span className="text-[10px] font-bold text-slate-600 text-right">₹{cash.changeAmount.toLocaleString('en-IN')}</span>
+                  </>
+                )}
                 <span>Digital PhonePe:</span><span className="font-bold text-slate-800 text-right">₹{cash.phonePeAmount.toLocaleString('en-IN')}</span>
               </div>
               <button 
