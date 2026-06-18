@@ -23,9 +23,9 @@ export default function SalesmanProfileCard({ salesman, onNavigateToBilling, onN
   if (!salesman) return null;
 
   let symb = "";
-  if (salesman.name) {
-    symb += salesman.name[0];
-    symb += salesman.name[1];
+  if (salesman.code) {
+    symb += salesman.code[0];
+    symb += salesman.code[1];
   }
 
   return (
