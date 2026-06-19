@@ -104,10 +104,10 @@ export default function SalesmanProfileCard({ salesman }) {
 
           <div className="flex gap-2">
             <button type="button" onClick={() => navigate('/salesman/billing')} className="flex-1 flex justify-center px-3 py-2.5 rounded-lg font-bold text-sm tracking-tight bg-indigo-600 text-white shadow-[0_2px_10px_rgb(79,70,229,0.2)] transition duration-150 ease-in-out active:scale-95 active:bg-indigo-700">
-              Supply
+              Bill
             </button>
             <button type="button" onClick={() => navigate('/salesman/cash')} className="flex-1 flex justify-center px-3 py-2.5 rounded-lg font-bold text-sm tracking-tight bg-emerald-600 text-white shadow-[0_2px_10px_rgb(5,150,105,0.2)] transition duration-150 ease-in-out active:scale-95 active:bg-emerald-700">
-              Collect
+              Cash
             </button>
             <button type="button" onClick={() => navigate('/salesman/prices')} className={`flex-1 flex justify-center px-3 py-2.5 rounded-lg font-bold text-sm tracking-tight transition duration-150 ease-in-out active:scale-95 ${salesman.bf > 0
                 ? 'bg-rose-50 text-rose-700 border border-rose-100 active:bg-rose-100'
