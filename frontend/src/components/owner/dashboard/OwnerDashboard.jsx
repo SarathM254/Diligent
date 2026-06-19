@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { getDashboardStats, pushGlobalSystemDate } from '../../../api/billApi';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
-export default function OwnerDashboard({ onNavigate }) {
+export default function OwnerDashboard() {
+  const navigate = useNavigate();
   // --- SECTION 1: GLOBAL SYSTEM STATE ---
   // In production, realWorldDate matches the actual system clock (new Date())
   const realWorldDate = useMemo(() => new Date(), []);
@@ -217,7 +219,7 @@ export default function OwnerDashboard({ onNavigate }) {
               <div
                 key={portal.id}
                 onClick={() => {
-                    onNavigate(portal.id);
+                    navigate('/owner/' + portal.id);
                 }}
                 className="group w-full bg-white border border-slate-200/70 hover:border-indigo-500 rounded-xl p-4 flex items-center justify-between gap-x-4 cursor-pointer shadow-3xs transition-all duration-150 hover:shadow-2xs active:bg-slate-50/50"
               >

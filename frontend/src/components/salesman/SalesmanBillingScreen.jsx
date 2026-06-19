@@ -5,8 +5,10 @@ import BillingPreviewSheet from './BillingPreviewSheet';
 import { createOrUpdateDraftBill } from '../../api/billApi';
 import { getCategories, getBrands } from '../../api/inventoryApi';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
-export default function SalesmanBillingScreen({ salesman, onBack }) {
+export default function SalesmanBillingScreen({ salesman }) {
+    const navigate = useNavigate();
     const [liveCategories, setLiveCategories] = useState([]);
     const [liveRates, setLiveRates] = useState({});
     const [loading, setLoading] = useState(true);
@@ -130,7 +132,7 @@ export default function SalesmanBillingScreen({ salesman, onBack }) {
             });
             
             toast.success("Bill submitted successfully!");
-            if (onBack) onBack();
+            navigate('/salesman');
         } catch (error) {
             console.error("Submission error:", error);
             toast.error(error.response?.data?.error || "Failed to submit bill. It might be locked by management.");
@@ -141,10 +143,12 @@ export default function SalesmanBillingScreen({ salesman, onBack }) {
 
     // Safe navigation fallback logic wrapper
     const handleNavigationBackRoute = () => {
+        if (isSubmitting) return;
+
         if (currentStep === 2) {
-            setCurrentStep(1); // Drop back from summary review layer onto interactive data entry matrix
+            setCurrentStep(1);
         } else {
-            if (onBack) onBack();
+            navigate('/salesman');
         }
     };
 

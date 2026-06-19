@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { getSalesmen, getOperators, registerUser, updateUser, deleteUser } from '../../../api/userApi';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
-export default function StaffManagementPortal({ onBack }) {
+export default function StaffManagementPortal() {
+  const navigate = useNavigate();
   // --- STATE FOR MANAGING THE ACTIVE MODAL FORM LAYER ---
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [editingStaff, setEditingStaff] = useState(null); 
@@ -138,7 +140,7 @@ export default function StaffManagementPortal({ onBack }) {
       
       {/* Persistent Dashboard Section Header Layout */}
       <div className="sticky top-0 bg-white border-b border-slate-200/80 px-4 py-3.5 flex items-center gap-x-4 z-10 shadow-2xs">
-        <button type="button" onClick={onBack} className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 transition-colors shrink-0">
+        <button type="button" onClick={() => navigate('/owner')} className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 transition-colors shrink-0">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
           </svg>

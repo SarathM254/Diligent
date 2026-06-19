@@ -4,8 +4,10 @@ import OwnerBillEdit from './OwnerBillEdit';
 import { getPendingBillsForAdmin, updateBillStatusByOwner } from '../../../api/billApi';
 import { getPendingPaymentsForAdmin, verifyPaymentByOwner } from '../../../api/paymentApi';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
-export default function VerificationDesk({ onBack }) {
+export default function VerificationDesk() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('bills');
   const [openAccordionId, setOpenAccordionId] = useState(null);
   
@@ -97,7 +99,7 @@ export default function VerificationDesk({ onBack }) {
       
       {/* STATIC TOP HEADER LAYER */}
       <div className="sticky top-0 bg-white border-b border-slate-200/80 px-4 py-3.5 flex items-center gap-x-4 z-10">
-        <button type="button" onClick={onBack} className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 shrink-0">
+        <button type="button" onClick={() => navigate('/owner')} className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 shrink-0">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
           </svg>

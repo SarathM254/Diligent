@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import AuditBillChallan from './AuditBillChallan';
 import { getPendingBillsForAdmin, updateBillStatusByOwner } from '../../api/billApi';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
-export default function OperatorDashboard({ onBackToList }) {
+export default function OperatorDashboard() {
+  const navigate = useNavigate();
   const [openBillId, setOpenBillId] = useState(null);
   const [temporaryCheckedBills, setTemporaryCheckedBills] = useState({});
   const [loading, setLoading] = useState(true);
@@ -66,13 +68,11 @@ export default function OperatorDashboard({ onBackToList }) {
     <div className="w-full min-h-screen bg-slate-50 flex flex-col justify-start max-w-md mx-auto border-x border-slate-200/80">
       
       <div className="sticky top-0 bg-[rgb(63,42,199)] border-b border-slate-200/80 px-4 py-4 z-10 w-full flex items-center gap-x-4">
-        {onBackToList && (
-          <button type="button" onClick={onBackToList} className="p-1.5 rounded-lg text-white/70 hover:bg-white/10 hover:text-white transition-colors shrink-0">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-            </svg>
-          </button>
-        )}
+        <button type="button" onClick={() => navigate(-1)} className="p-1.5 rounded-lg text-white/70 hover:bg-white/10 hover:text-white transition-colors shrink-0">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          </svg>
+        </button>
         <h2 className="text-xl font-bold text-[rgb(255,255,255)] tracking-wider">Operator Desk</h2>
       </div>
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Toaster } from 'react-hot-toast';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import './App.css';
 import apiClient from './api/apiClient';
 
@@ -24,6 +25,8 @@ import SalesmanSelectionList from './components/salesman/SalesmanSelectionList';
 import SalesmanPriceList from './components/salesman/SalesmanPriceList';
 
 export default function App() {
+  const navigate = useNavigate();
+
   const [role, setRole] = useState(() => {
     return localStorage.getItem('session_role') || 'none';
   });
@@ -36,7 +39,6 @@ export default function App() {
   });
 
   // salesman state
-  const [salesmanView, setSalesmanView] = useState('home');
   const [activeSalesman, setActiveSalesman] = useState(() => {
     const userJson = localStorage.getItem('session_user');
     const storedRole = localStorage.getItem('session_role');
@@ -50,9 +52,6 @@ export default function App() {
     }
     return null;
   });
-
-  // owner state
-  const [ownerView, setOwnerView] = useState('home');
 
   // error message state
   const [errorMsg, setErrorMsg] = useState('');
@@ -68,14 +67,13 @@ export default function App() {
     localStorage.removeItem('session_role');
     localStorage.removeItem('session_user');
     setRole('none');
-    setSalesmanView('home');
     setActiveSalesman(null);
     setActiveOperator(null);
-    setOwnerView('home');
     setErrorMsg('');
     setIsOwnerPinVerified(false);
     setPinInput('');
     setPinError('');
+    navigate('/');
   };
 
   React.useEffect(() => {
@@ -100,8 +98,12 @@ export default function App() {
               code: user.salesmanId || 'N/A',
               bf: user.broughtForwardDebt || 0
             });
+            navigate('/salesman');
           } else if (userRole === 'operator') {
             setActiveOperator(user);
+            navigate('/operator');
+          } else if (userRole === 'owner') {
+            navigate('/owner');
           }
         } catch (err) {
           setErrorMsg(err.response?.data?.error || 'Authentication failed. Email might not be registered.');
@@ -136,7 +138,7 @@ export default function App() {
 
       return () => clearInterval(interval);
     }
-  }, [role]);
+  }, [role, navigate]);
 
   if (role === 'none') {
     return (
@@ -207,32 +209,26 @@ export default function App() {
       
       {role === 'salesman' ? (
         <main className="flex-1 w-full pb-4 flex flex-col gap-4">
-          {salesmanView === 'home' && !activeSalesman && (
-            <SalesmanSelectionList 
-              onSelectSalesman={(s) => setActiveSalesman(s)} 
-            />
-          )}
-          {salesmanView === 'home' && activeSalesman && (
-            <>
-              <SalesmanProfileCard 
-                salesman={activeSalesman}
-                onNavigateToBilling={() => setSalesmanView('billing')} 
-                onNavigateToCash={() => setSalesmanView('cash')} 
-                onNavigateToPrices={() => setSalesmanView('prices')}
-                onBackToList={null}
-              />
-              <SalesmanStatementHistory salesmanId={activeSalesman._id} />
-            </>
-          )}
-          {salesmanView === 'billing' && (
-            <SalesmanBillingScreen salesman={activeSalesman} onBack={() => setSalesmanView('home')} />
-          )}
-          {salesmanView === 'cash' && (
-            <CashPaymentSettlement salesman={activeSalesman} onBack={() => setSalesmanView('home')} />
-          )}
-          {salesmanView === 'prices' && (
-            <SalesmanPriceList onBack={() => setSalesmanView('home')} />
-          )}
+          <Routes>
+            <Route path="/salesman" element={
+              !activeSalesman ? (
+                <SalesmanSelectionList onSelectSalesman={(s) => setActiveSalesman(s)} />
+              ) : (
+                <>
+                  <SalesmanProfileCard salesman={activeSalesman} />
+                  <SalesmanStatementHistory salesmanId={activeSalesman._id} />
+                </>
+              )
+            } />
+            {activeSalesman && (
+              <>
+                <Route path="/salesman/billing" element={<SalesmanBillingScreen salesman={activeSalesman} />} />
+                <Route path="/salesman/cash" element={<CashPaymentSettlement salesman={activeSalesman} />} />
+                <Route path="/salesman/prices" element={<SalesmanPriceList />} />
+              </>
+            )}
+            <Route path="*" element={<Navigate to="/salesman" replace />} />
+          </Routes>
         </main>
       ) : role === 'owner' ? (
         <main className="flex-1 w-full pb-4">
@@ -269,38 +265,30 @@ export default function App() {
               </form>
             </div>
           ) : (
-            <>
-              {ownerView === 'home' && (
-                <OwnerDashboard onNavigate={setOwnerView} />
-              )}
-          {ownerView === 'verify' && (
-            <VerificationDesk onBack={() => setOwnerView('home')} />
-          )}
-          {ownerView === 'ledger' && (
-            <LedgerControlPortal onBack={() => setOwnerView('home')} />
-          )}
-          {ownerView === 'staff' && (
-            <StaffManagementPortal onBack={() => setOwnerView('home')} />
-          )}
-          {ownerView === 'inventory' && (
-            <InventoryControlPortal onBack={() => setOwnerView('home')} />
-          )}
-          {ownerView === 'brands' && (
-            <BrandManagerPortal onBack={() => setOwnerView('home')} />
-          )}
-              {ownerView === 'billing_ops' && (
-                <OperatorDashboard onBackToList={() => setOwnerView('home')} />
-              )}
-            </>
+            <Routes>
+              <Route path="/owner" element={<OwnerDashboard />} />
+              <Route path="/owner/verify" element={<VerificationDesk />} />
+              <Route path="/owner/ledger" element={<LedgerControlPortal />} />
+              <Route path="/owner/staff" element={<StaffManagementPortal />} />
+              <Route path="/owner/inventory" element={<InventoryControlPortal />} />
+              <Route path="/owner/brands" element={<BrandManagerPortal />} />
+              <Route path="/owner/billing_ops" element={<OperatorDashboard />} />
+              <Route path="*" element={<Navigate to="/owner" replace />} />
+            </Routes>
           )}
         </main>
       ) : role === 'operator' ? (
         <main className="flex-1 w-full pb-4">
-          {!activeOperator ? (
-            <OperatorSelectionList onSelectOperator={(op) => setActiveOperator(op)} />
-          ) : (
-            <OperatorDashboard onBackToList={null} />
-          )}
+          <Routes>
+            <Route path="/operator" element={
+              !activeOperator ? (
+                <OperatorSelectionList onSelectOperator={(op) => setActiveOperator(op)} />
+              ) : (
+                <OperatorDashboard />
+              )
+            } />
+            <Route path="*" element={<Navigate to="/operator" replace />} />
+          </Routes>
         </main>
       ) : null}
     </div>

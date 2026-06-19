@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { submitDailyPayment } from '../../api/paymentApi';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 const DENOMINATIONS = [500, 200, 100, 50, 20, 10];
 
-export default function CashPaymentSettlement({ salesman, onSettlementSuccess, onBack }) {
+export default function CashPaymentSettlement({ salesman, onSettlementSuccess }) {
+  const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Initialize react-hook-form with structured object layouts
@@ -79,7 +81,7 @@ export default function CashPaymentSettlement({ salesman, onSettlementSuccess, o
     try {
       await submitDailyPayment(finalizedPayload);
       toast.success("Payment submitted successfully for verification.");
-      if (onBack) onBack();
+      navigate('/salesman');
       if (onSettlementSuccess) onSettlementSuccess(finalizedPayload);
     } catch (error) {
       console.error("Failed to submit payment:", error);
@@ -96,8 +98,9 @@ export default function CashPaymentSettlement({ salesman, onSettlementSuccess, o
       <div className="sticky top-0 bg-white border-b border-slate-200/80 px-4 py-3.5 flex items-center gap-x-4 z-10 shadow-xs">
                 <button
                     type="button"
-                    onClick={onBack}
-                    className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 transition-colors duration-150 shrink-0"
+                    disabled={isSubmitting}
+                    onClick={() => navigate('/salesman')}
+                    className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 transition-colors shrink-0"
                     aria-label="Navigate Back"
                 >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">

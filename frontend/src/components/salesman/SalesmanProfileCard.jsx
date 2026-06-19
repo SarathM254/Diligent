@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { getSalesmanDailyStatus } from '../../api/userApi';
+import { useNavigate } from 'react-router-dom';
 
-export default function SalesmanProfileCard({ salesman, onNavigateToBilling, onNavigateToCash, onNavigateToPrices, onBackToList }) {
+export default function SalesmanProfileCard({ salesman }) {
+  const navigate = useNavigate();
   const [billStatus, setBillStatus] = useState('Loading...');
   const [cashStatus, setCashStatus] = useState('Loading...');
 
@@ -36,12 +38,10 @@ export default function SalesmanProfileCard({ salesman, onNavigateToBilling, onN
         {/* Header Layout */}
         <div className="flex items-start justify-between">
           <div>
-            {onBackToList && (
-              <button onClick={onBackToList} className="flex items-center text-[11px] font-bold text-slate-400 hover:text-indigo-600 mb-2 transition-colors uppercase tracking-wider">
-                <svg className="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
-                Agent List
-              </button>
-            )}
+            <button onClick={() => navigate(-1)} className="flex items-center text-[11px] font-bold text-slate-400 hover:text-indigo-600 mb-2 transition-colors uppercase tracking-wider">
+              <svg className="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+              Agent List
+            </button>
             <h2 className="text-xl font-bold text-slate-900 tracking-tight leading-none">
               {salesman.name}
             </h2>
@@ -102,14 +102,14 @@ export default function SalesmanProfileCard({ salesman, onNavigateToBilling, onN
             </div>
           </div> 
 
-          <div className="flex items-center justify-between rounded-xl space-x-2">
-            <button type="button" onClick={onNavigateToBilling} className="flex-1 flex justify-center px-3 py-2.5 rounded-lg font-bold text-sm tracking-tight bg-indigo-600 text-white shadow-[0_2px_10px_rgb(79,70,229,0.2)] transition duration-150 ease-in-out active:scale-95 active:bg-indigo-700">
-              Bill
+          <div className="flex gap-2">
+            <button type="button" onClick={() => navigate('/salesman/billing')} className="flex-1 flex justify-center px-3 py-2.5 rounded-lg font-bold text-sm tracking-tight bg-indigo-600 text-white shadow-[0_2px_10px_rgb(79,70,229,0.2)] transition duration-150 ease-in-out active:scale-95 active:bg-indigo-700">
+              Supply
             </button>
-            <button type="button" onClick={onNavigateToCash} className="flex-1 flex justify-center px-3 py-2.5 rounded-lg font-bold text-sm tracking-tight bg-emerald-600 text-white shadow-[0_2px_10px_rgb(5,150,105,0.2)] transition duration-150 ease-in-out active:scale-95 active:bg-emerald-700">
-              Cash Pay
+            <button type="button" onClick={() => navigate('/salesman/cash')} className="flex-1 flex justify-center px-3 py-2.5 rounded-lg font-bold text-sm tracking-tight bg-emerald-600 text-white shadow-[0_2px_10px_rgb(5,150,105,0.2)] transition duration-150 ease-in-out active:scale-95 active:bg-emerald-700">
+              Collect
             </button>
-            <button type="button" onClick={onNavigateToPrices} className={`flex-1 flex justify-center px-3 py-2.5 rounded-lg font-bold text-sm tracking-tight transition duration-150 ease-in-out active:scale-95 ${salesman.bf > 0
+            <button type="button" onClick={() => navigate('/salesman/prices')} className={`flex-1 flex justify-center px-3 py-2.5 rounded-lg font-bold text-sm tracking-tight transition duration-150 ease-in-out active:scale-95 ${salesman.bf > 0
                 ? 'bg-rose-50 text-rose-700 border border-rose-100 active:bg-rose-100'
                 : 'bg-slate-50 text-slate-600 border border-slate-200 active:bg-slate-100'
               }`}>
