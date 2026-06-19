@@ -167,7 +167,7 @@ export default function OwnerDashboard() {
           {/* Debt Overage Metric */}
 
 
-          {/* <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-2xs flex justify-between items-center">
+          <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-2xs flex justify-between items-center">
             <div className="space-y-0.5">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Salesman Exposure</span>
               <p className="text-xs text-slate-400">Aggregated Market Brought Forward (BF) Debt</p>
@@ -175,10 +175,10 @@ export default function OwnerDashboard() {
             <span className="text-xl font-black text-rose-700 tracking-tight bg-rose-50/50 border border-rose-100/70 px-3 py-1.5 rounded-xl">
               ₹{financials.totalSalesmanBFDebt.toLocaleString('en-IN')}
             </span>
-          </div> */}
+          </div>
 
           {/* Load Volume Subtotals Block */}
-          {/* <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-2xs space-y-3">
+          <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-2xs space-y-3">
             <div className="flex justify-between items-center border-b border-slate-100 pb-2.5">
               <div className="space-y-0.5">
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Stock Dispatched</span>
@@ -208,7 +208,7 @@ export default function OwnerDashboard() {
                 </p>
               </div>
             </div>
-          </div> */}
+          </div>
         </div>
 
         {/* --- MODULE PORTAL LINKS --- */}
@@ -231,7 +231,7 @@ export default function OwnerDashboard() {
                     <div className="flex items-center gap-x-2">
                       <h4 className="text-sm font-bold text-slate-800 tracking-tight group-hover:text-indigo-600 transition-colors">{portal.title}</h4>
                     </div>
-                    <p className="text-xs text-slate-400 leading-normal max-w-[240px]">{portal.desc}</p>
+                    <p className="text-xs text-slate-400 leading-normal max-w-60">{portal.desc}</p>
                   </div>
                 </div>
                 <svg className="w-4 h-4 text-slate-300 group-hover:text-indigo-500 transform group-hover:translate-x-0.5 transition-all duration-150 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
