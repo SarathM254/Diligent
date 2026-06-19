@@ -3,6 +3,7 @@ import AuditBillView from './AuditBillView';
 import OwnerBillEdit from './OwnerBillEdit';
 import { getPendingBillsForAdmin, updateBillStatusByOwner } from '../../../api/billApi';
 import { getPendingPaymentsForAdmin, verifyPaymentByOwner } from '../../../api/paymentApi';
+import toast from 'react-hot-toast';
 
 export default function VerificationDesk({ onBack }) {
   const [activeTab, setActiveTab] = useState('bills');
@@ -46,7 +47,7 @@ export default function VerificationDesk({ onBack }) {
       setOpenAccordionId(null);
     } catch (error) {
       console.error("Failed to approve bill:", error);
-      alert(error.response?.data?.error || "Failed to approve bill.");
+      toast.error(error.response?.data?.error || "Failed to approve bill.");
     } finally {
       setIsSubmittingApprove(false);
     }
@@ -59,7 +60,7 @@ export default function VerificationDesk({ onBack }) {
       setPendingCash(prev => prev.filter(p => p._id !== paymentId));
     } catch (error) {
       console.error("Failed to verify payment:", error);
-      alert(error.response?.data?.error || "Failed to verify payment.");
+      toast.error(error.response?.data?.error || "Failed to verify payment.");
     } finally {
       setIsSubmittingCash(false);
     }

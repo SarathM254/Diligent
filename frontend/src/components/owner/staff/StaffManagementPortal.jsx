@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getSalesmen, getOperators, registerUser, updateUser, deleteUser } from '../../../api/userApi';
+import toast from 'react-hot-toast';
 
 export default function StaffManagementPortal({ onBack }) {
   // --- STATE FOR MANAGING THE ACTIVE MODAL FORM LAYER ---
@@ -7,6 +8,8 @@ export default function StaffManagementPortal({ onBack }) {
   const [editingStaff, setEditingStaff] = useState(null); 
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [staffToDelete, setStaffToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // --- LOCAL FORM FIELDS BUFFER STATE ---
   const [formData, setFormData] = useState({ name: '', email: '', code: '', role: 'Salesman' });
@@ -61,17 +64,23 @@ export default function StaffManagementPortal({ onBack }) {
     setIsFormModalOpen(true);
   };
 
-  const handleSafeDeleteRequest = async (staffMember) => {
-    const messageTemplate = `Are you absolutely sure you want to delete account: ${staffMember.name} (${staffMember.code})?\n\nThis will permanently remove the user from the database.`;
-    
-    if (window.confirm(messageTemplate)) {
-      try {
-        await deleteUser(staffMember._id);
-        setStaffRoster(prev => prev.filter(item => item._id !== staffMember._id));
-      } catch (error) {
-        console.error("Failed to delete user:", error);
-        alert("Failed to delete user. Ensure they exist and try again.");
-      }
+  const handleSafeDeleteRequest = (staffMember) => {
+    setStaffToDelete(staffMember);
+  };
+
+  const confirmDeleteAction = async () => {
+    if (!staffToDelete) return;
+    setIsDeleting(true);
+    try {
+      await deleteUser(staffToDelete._id);
+      setStaffRoster(prev => prev.filter(item => item._id !== staffToDelete._id));
+      toast.success("User deleted successfully.");
+    } catch (error) {
+      console.error("Failed to delete user:", error);
+      toast.error("Failed to delete user. Ensure they exist and try again.");
+    } finally {
+      setIsDeleting(false);
+      setStaffToDelete(null);
     }
   };
 
@@ -92,9 +101,10 @@ export default function StaffManagementPortal({ onBack }) {
         await updateUser(editingStaff._id, payload);
         await fetchStaff();
         setIsFormModalOpen(false);
+        toast.success("User profile updated successfully.");
       } catch (error) {
         console.error("Failed to update user:", error);
-        alert(error.response?.data?.error || "Error updating user.");
+        toast.error(error.response?.data?.error || "Error updating user.");
       } finally {
         setIsSubmitting(false);
       }
@@ -113,9 +123,10 @@ export default function StaffManagementPortal({ onBack }) {
         // Refresh the roster to show the newly created user with their real DB _id
         await fetchStaff();
         setIsFormModalOpen(false);
+        toast.success("New user created successfully.");
       } catch (error) {
         console.error("Failed to register user:", error);
-        alert(error.response?.data?.error || "Error creating user. They might already exist.");
+        toast.error(error.response?.data?.error || "Error creating user. They might already exist.");
       } finally {
         setIsSubmitting(false);
       }
@@ -305,6 +316,50 @@ export default function StaffManagementPortal({ onBack }) {
 
             </form>
 
+          </div>
+        </div>
+      )}
+
+      {/* --- CUSTOM CONFIRM DELETION MODAL --- */}
+      {staffToDelete && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs transition-opacity duration-200">
+          <div className="w-full max-w-sm bg-white rounded-2xl border border-rose-200 shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150 p-5 flex flex-col gap-4 text-center">
+            <div className="w-12 h-12 bg-rose-50 rounded-full flex items-center justify-center mx-auto text-rose-500 mb-2">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            
+            <h3 className="text-lg font-bold text-slate-900 tracking-tight">Delete Account?</h3>
+            <p className="text-sm text-slate-500 font-medium">
+              Are you absolutely sure you want to delete <span className="text-slate-800 font-bold">{staffToDelete.name} ({staffToDelete.code})</span>?
+              <br/><br/>
+              This will permanently remove the user from the database.
+            </p>
+
+            <div className="flex items-center gap-x-2 mt-4">
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={() => setStaffToDelete(null)}
+                className="flex-1 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs py-2.5 rounded-xl border border-slate-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={confirmDeleteAction}
+                className="flex-1 flex justify-center items-center gap-x-2 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 disabled:opacity-50 text-white font-bold text-xs py-2.5 rounded-xl transition-all shadow-xs border border-rose-700/50"
+              >
+                {isDeleting && (
+                  <svg className="w-3.5 h-3.5 animate-spin text-white" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                )}
+                <span>{isDeleting ? "Deleting..." : "Delete User"}</span>
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { getDashboardStats, pushGlobalSystemDate } from '../../../api/billApi';
+import toast from 'react-hot-toast';
 
 export default function OwnerDashboard({ onNavigate }) {
   // --- SECTION 1: GLOBAL SYSTEM STATE ---
@@ -81,9 +82,10 @@ export default function OwnerDashboard({ onNavigate }) {
         nextDate.setDate(nextDate.getDate() + 1);
         setSystemOperationalDate(nextDate);
       }
+      toast.success("System date advanced successfully");
     } catch (err) {
       console.error("Failed to push global date", err);
-      alert("Failed to advance system date");
+      toast.error("Failed to advance system date");
     } finally {
       setIsSubmitting(false);
     }

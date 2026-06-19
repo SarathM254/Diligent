@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { submitDailyPayment } from '../../api/paymentApi';
+import toast from 'react-hot-toast';
 
 const DENOMINATIONS = [500, 200, 100, 50, 20, 10];
 
@@ -60,9 +61,9 @@ export default function CashPaymentSettlement({ salesman, onSettlementSuccess, o
   const handleFormSubmission = async (data) => {
     setIsSubmitting(true);
     if (!salesman || !salesman._id) {
-        alert("Salesman identity missing.");
-        setIsSubmitting(false);
-        return;
+      toast.error("Salesman identity missing.");
+      setIsSubmitting(false);
+      return;
     }
 
     const finalizedPayload = {
@@ -77,12 +78,12 @@ export default function CashPaymentSettlement({ salesman, onSettlementSuccess, o
 
     try {
       await submitDailyPayment(finalizedPayload);
-      alert("Payment submitted successfully for verification.");
+      toast.success("Payment submitted successfully for verification.");
       if (onBack) onBack();
       if (onSettlementSuccess) onSettlementSuccess(finalizedPayload);
     } catch (error) {
       console.error("Failed to submit payment:", error);
-      alert(error.response?.data?.error || "Error submitting payment.");
+      toast.error(error.response?.data?.error || "Error submitting payment.");
     } finally {
       setIsSubmitting(false);
     }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AuditBillChallan from './AuditBillChallan';
 import { getPendingBillsForAdmin, updateBillStatusByOwner } from '../../api/billApi';
+import toast from 'react-hot-toast';
 
 export default function OperatorDashboard({ onBackToList }) {
   const [openBillId, setOpenBillId] = useState(null);
@@ -52,10 +53,10 @@ export default function OperatorDashboard({ onBackToList }) {
           bill._id === billId ? { ...bill, status: "billed" } : bill
         )
       );
-      console.log(`Backend status synced successfully to "billed" for token reference: ${billId}`);
+      toast.success(`Backend status synced successfully to "billed" for token reference: ${billId}`);
     } catch (error) {
       console.error("Failed to commit dispatch:", error);
-      alert("Failed to commit dispatch.");
+      toast.error("Failed to commit dispatch.");
     } finally {
       setIsSubmitting(false);
     }

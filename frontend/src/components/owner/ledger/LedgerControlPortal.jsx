@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getSalesmen, adjustLedgerBalance } from '../../../api/userApi';
+import toast from 'react-hot-toast';
 
 export default function LedgerControlPortal({ onBack }) {
   // --- STATE FOR MANAGING THE ACTIVE ADJUSTMENT MODAL OVERLAY ---
@@ -67,9 +68,10 @@ export default function LedgerControlPortal({ onBack }) {
       });
       loadSalesmen(); // Refresh actual data from server securely
       closeAdjustmentModal();
+      toast.success("Ledger adjusted successfully.");
     } catch (error) {
       console.error("Failed to adjust ledger:", error);
-      alert("Failed to adjust ledger balance");
+      toast.error("Failed to adjust ledger balance");
     } finally {
       setIsSubmitting(false);
     }

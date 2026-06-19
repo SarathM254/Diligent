@@ -3,6 +3,7 @@ import InventoryModifyScreen from './InventoryModifyScreen';
 import AIInvoiceReview from './AIInvoiceReview';
 import AIInvoiceModify from './AIInvoiceModify';
 import { getCategories, getBrands, upsertBrand, bulkAddInventory, parseInvoiceWithAI } from '../../../api/inventoryApi';
+import toast from 'react-hot-toast';
 
 export default function InventoryControlPortal({ onBack }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -70,7 +71,7 @@ export default function InventoryControlPortal({ onBack }) {
       }
     } catch (error) {
       console.error("Failed to sync inventory:", error);
-      alert("Failed to sync some inventory items: " + (error.response?.data?.error || error.message || "Unknown error"));
+      toast.error("Failed to sync some inventory items: " + (error.response?.data?.error || error.message || "Unknown error"));
     } finally {
       setIsSyncing(false);
     }
@@ -88,7 +89,7 @@ export default function InventoryControlPortal({ onBack }) {
       setAiState('review');
     } catch (error) {
       console.error("Failed to parse invoice", error);
-      alert("Failed to parse invoice via AI.");
+      toast.error("Failed to parse invoice via AI.");
       setAiState('idle');
     }
     
@@ -107,7 +108,7 @@ export default function InventoryControlPortal({ onBack }) {
       setAiState('idle');
     } catch (error) {
       console.error("Failed to commit AI inventory", error);
-      alert("Failed to sync AI inventory.");
+      toast.error("Failed to sync AI inventory.");
     } finally {
       setIsAccepting(false);
     }

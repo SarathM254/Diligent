@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getCategories, getBrands, createCategory, upsertBrand } from '../../../api/inventoryApi';
+import toast from 'react-hot-toast';
 
 export default function BrandManagerPortal({ onBack }) {
   // --- STATE MANAGEMENT ---
@@ -54,12 +55,12 @@ export default function BrandManagerPortal({ onBack }) {
 
   const handleDeleteCategory = (e, category) => {
     e.stopPropagation();
-    alert(`Category deletion is disabled in the current administrative context. Please contact support to remove "${category.name}".`);
+    toast.error(`Category deletion is disabled in the current administrative context. Please contact support to remove "${category.name}".`, { duration: 5000 });
   };
 
   const handleDeleteBrand = (e, categoryId, brand) => {
     e.stopPropagation();
-    alert(`Brand deletion is disabled. Try zeroing out the inventory or contacting support to remove "${brand.name}".`);
+    toast.error(`Brand deletion is disabled. Try zeroing out the inventory or contacting support to remove "${brand.name}".`, { duration: 5000 });
   };
 
   const handleEditBrandClick = (e, categoryId, brand) => {
@@ -88,10 +89,11 @@ export default function BrandManagerPortal({ onBack }) {
       await createCategory({ name: newCategoryName });
       setNewCategoryName('');
       setIsAddCategoryOpen(false);
+      toast.success("Category created successfully!");
       loadData();
     } catch (error) {
       console.error("Failed to add category", error);
-      alert("Failed to create category");
+      toast.error("Failed to create category");
     }
   };
 
@@ -113,11 +115,12 @@ export default function BrandManagerPortal({ onBack }) {
       }
 
       await upsertBrand(payload);
+      toast.success("Brand saved successfully!");
       handleCancelBrandForm();
       loadData();
     } catch (error) {
       console.error("Failed to save brand", error);
-      alert("Failed to save brand");
+      toast.error("Failed to save brand");
     }
   };
 

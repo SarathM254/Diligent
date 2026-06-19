@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Toaster } from 'react-hot-toast';
 import './App.css';
 import apiClient from './api/apiClient';
 
@@ -201,6 +202,7 @@ export default function App() {
 
   return (
     <div className="w-full max-w-md mx-auto p-4 min-h-screen bg-gray-50 flex flex-col font-sans">
+      <Toaster position="top-center" toastOptions={{ style: { background: '#333', color: '#fff' } }} />
       <Header />
       
       {role === 'salesman' ? (

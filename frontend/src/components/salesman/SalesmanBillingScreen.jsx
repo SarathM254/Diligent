@@ -4,6 +4,7 @@ import BillingEntryForm from './BillingEntryForm';
 import BillingPreviewSheet from './BillingPreviewSheet';
 import { createOrUpdateDraftBill } from '../../api/billApi';
 import { getCategories, getBrands } from '../../api/inventoryApi';
+import toast from 'react-hot-toast';
 
 export default function SalesmanBillingScreen({ salesman, onBack }) {
     const [liveCategories, setLiveCategories] = useState([]);
@@ -119,7 +120,7 @@ export default function SalesmanBillingScreen({ salesman, onBack }) {
         setIsSubmitting(true);
         try {
             if (!salesman || !salesman._id) {
-                alert("Salesman identity missing.");
+                toast.error("Salesman identity missing.");
                 return;
             }
             
@@ -128,11 +129,11 @@ export default function SalesmanBillingScreen({ salesman, onBack }) {
                 items: finalPreviewPayload
             });
             
-            alert("Bill submitted successfully!");
+            toast.success("Bill submitted successfully!");
             if (onBack) onBack();
         } catch (error) {
             console.error("Submission error:", error);
-            alert(error.response?.data?.error || "Failed to submit bill. It might be locked by management.");
+            toast.error(error.response?.data?.error || "Failed to submit bill. It might be locked by management.");
         } finally {
             setIsSubmitting(false);
         }
