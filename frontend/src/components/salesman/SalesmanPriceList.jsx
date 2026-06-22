@@ -70,19 +70,18 @@ export default function SalesmanPriceList() {
             <div className="space-y-5">
               {liveCategories.map((category, idx) => {
                 const isEven = idx % 2 === 0;
-                const headerColor = isEven ? 'text-indigo-500 border-indigo-100' : 'text-emerald-500 border-emerald-100';
-                const bodyGradient = isEven 
-                  ? 'bg-gradient-to-b from-slate-50 to-white' 
-                  : 'bg-gradient-to-b from-indigo-50/30 to-white';
+                const headerBg = isEven ? 'bg-slate-50/70 text-slate-800 border-slate-200' : 'bg-indigo-50/40 text-indigo-900 border-indigo-100';
+                const bodyBg = isEven ? 'bg-slate-50/30' : 'bg-indigo-50/20';
+                const itemHoverBg = isEven ? 'hover:bg-slate-100/50' : 'hover:bg-indigo-100/50';
 
                 return (
-                  <div key={category.id} className={`rounded-xl border border-slate-100 overflow-hidden ${bodyGradient}`}>
-                    <h3 className={`text-[11px] font-bold uppercase tracking-widest px-4 py-2 border-b bg-white/50 ${headerColor}`}>
+                  <div key={category.id} className={`rounded-xl border overflow-hidden ${isEven ? 'border-slate-200' : 'border-indigo-100'}`}>
+                    <h3 className={`text-[11px] font-bold uppercase tracking-widest px-4 py-2 border-b ${headerBg}`}>
                       {category.name}
                     </h3>
-                    <div className="divide-y divide-slate-50">
+                    <div className={`divide-y ${isEven ? 'divide-slate-200/50' : 'divide-indigo-100/50'} ${bodyBg}`}>
                       {category.brands.map((brand) => (
-                        <div key={brand.id} className="flex justify-between items-center px-4 py-2.5 hover:bg-slate-50/50 transition-colors">
+                        <div key={brand.id} className={`flex justify-between items-center px-4 py-2.5 transition-colors ${itemHoverBg}`}>
                           <span className="text-sm font-medium text-slate-800 tracking-tight flex items-center">
                             {brand.name}
                             <span className="text-[9px] font-bold text-slate-400 ml-1">(R)</span>

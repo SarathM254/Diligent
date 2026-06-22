@@ -6,6 +6,7 @@ export default function SalesmanProfileCard({ salesman }) {
   const navigate = useNavigate();
   const [billStatus, setBillStatus] = useState('Loading...');
   const [cashStatus, setCashStatus] = useState('Loading...');
+  const [currentBf, setCurrentBf] = useState(salesman?.bf || 0);
 
   useEffect(() => {
     if (salesman && salesman._id) {
@@ -13,6 +14,9 @@ export default function SalesmanProfileCard({ salesman }) {
         .then(data => {
           setBillStatus(data.billStatus);
           setCashStatus(data.cashStatus);
+          if (data.bf !== undefined) {
+            setCurrentBf(data.bf);
+          }
         })
         .catch(err => {
           console.error("Failed to load daily status", err);
@@ -67,11 +71,11 @@ export default function SalesmanProfileCard({ salesman }) {
               BF Balance
             </span>
             {/* Dynamic color warning: Green if 0, Red badge if debt exists */}
-            <div className={`px-2.5 py-1 rounded-lg font-bold text-sm tracking-tight ${salesman.bf > 0
+            <div className={`px-2.5 py-1 rounded-lg font-bold text-sm tracking-tight ${currentBf > 0
                 ? 'bg-rose-50 text-rose-700 border border-rose-100'
                 : 'bg-emerald-50 text-emerald-700 border border-emerald-100'
               }`}>
-              ₹{salesman.bf.toLocaleString('en-IN')}
+              ₹{currentBf.toLocaleString('en-IN')}
             </div>
           </div>
 
@@ -103,16 +107,13 @@ export default function SalesmanProfileCard({ salesman }) {
           </div> 
 
           <div className="flex gap-2">
-            <button type="button" onClick={() => navigate('/salesman/billing')} className="flex-1 flex justify-center px-3 py-2.5 rounded-lg font-bold text-sm tracking-tight bg-indigo-600 text-white shadow-[0_2px_10px_rgb(79,70,229,0.2)] transition duration-150 ease-in-out active:scale-95 active:bg-indigo-700">
+            <button type="button" onClick={() => navigate('/salesman/billing')} className="flex-1 flex justify-center px-3 py-2.5 rounded-lg font-bold text-sm tracking-tight bg-slate-900 text-white transition duration-150 ease-in-out active:scale-95 active:bg-slate-800">
               Bill
             </button>
-            <button type="button" onClick={() => navigate('/salesman/cash')} className="flex-1 flex justify-center px-3 py-2.5 rounded-lg font-bold text-sm tracking-tight bg-emerald-600 text-white shadow-[0_2px_10px_rgb(5,150,105,0.2)] transition duration-150 ease-in-out active:scale-95 active:bg-emerald-700">
+            <button type="button" onClick={() => navigate('/salesman/cash')} className="flex-1 flex justify-center px-3 py-2.5 rounded-lg font-bold text-sm tracking-tight bg-white text-slate-700 border border-slate-200 shadow-sm transition duration-150 ease-in-out active:scale-95 hover:bg-slate-50">
               Cash
             </button>
-            <button type="button" onClick={() => navigate('/salesman/prices')} className={`flex-1 flex justify-center px-3 py-2.5 rounded-lg font-bold text-sm tracking-tight transition duration-150 ease-in-out active:scale-95 ${salesman.bf > 0
-                ? 'bg-rose-50 text-rose-700 border border-rose-100 active:bg-rose-100'
-                : 'bg-slate-50 text-slate-600 border border-slate-200 active:bg-slate-100'
-              }`}>
+            <button type="button" onClick={() => navigate('/salesman/prices')} className="flex-1 flex justify-center px-3 py-2.5 rounded-lg font-bold text-sm tracking-tight bg-white text-slate-700 border border-slate-200 shadow-sm transition duration-150 ease-in-out active:scale-95 hover:bg-slate-50">
               Prices
             </button>
           </div>

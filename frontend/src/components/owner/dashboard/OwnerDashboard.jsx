@@ -108,7 +108,7 @@ export default function OwnerDashboard() {
       {/* HEADER SECTION */}
       <div className="sticky top-0 bg-white border-b border-slate-200/80 px-5 py-4 z-10 shadow-2xs flex items-center justify-between">
         <div>
-          <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Administrative Hub</span>
+          <span className="text-xs font-black text-indigo-600 uppercase tracking-widest">Administrative Hub</span>
           <h1 className="text-xl font-bold text-slate-900 tracking-tight mt-0.5">Owner Control Panel</h1>
         </div>
         <div className="h-9 w-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-black text-sm shadow-xs">HQ</div>
@@ -119,7 +119,7 @@ export default function OwnerDashboard() {
         {/* --- SYSTEM CONTEXT CALENDAR PUSH BLOCK --- */}
         <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-2xs flex items-center justify-between gap-x-4">
           <div className="space-y-0.5">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
               Business Operational Date
             </span>
             <p className="text-base font-black text-slate-800 tracking-tight">
@@ -169,10 +169,10 @@ export default function OwnerDashboard() {
 
           <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-2xs flex justify-between items-center">
             <div className="space-y-0.5">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Salesman Exposure</span>
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Salesman Exposure</span>
               <p className="text-xs text-slate-400">Aggregated Market Brought Forward (BF) Debt</p>
             </div>
-            <span className="text-xl font-black text-rose-700 tracking-tight bg-rose-50/50 border border-rose-100/70 px-3 py-1.5 rounded-xl">
+            <span className="text-xl font-black text-slate-800 tracking-tight bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl">
               ₹{financials.totalSalesmanBFDebt.toLocaleString('en-IN')}
             </span>
           </div>
@@ -181,7 +181,7 @@ export default function OwnerDashboard() {
           <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-2xs space-y-3">
             <div className="flex justify-between items-center border-b border-slate-100 pb-2.5">
               <div className="space-y-0.5">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Stock Dispatched</span>
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Stock Dispatched</span>
                 <p className="text-xs text-slate-400">Sum volume of all agency active runs</p>
               </div>
               <div className="flex items-baseline font-black text-slate-900 text-xl tracking-tight">
@@ -192,7 +192,7 @@ export default function OwnerDashboard() {
 
             <div className="grid grid-cols-2 divide-x divide-slate-100 text-center">
               <div className="space-y-0.5 pr-2 text-left">
-                <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider flex items-center gap-1">
+                <span className="text-xs font-bold text-emerald-600 uppercase tracking-wider flex items-center gap-1">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Billed Load
                 </span>
                 <p className="text-base font-extrabold text-slate-800 tracking-tight">
@@ -200,7 +200,7 @@ export default function OwnerDashboard() {
                 </p>
               </div>
               <div className="space-y-0.5 pl-4 text-left">
-                <span className="text-[10px] font-bold text-amber-500 uppercase tracking-wider flex items-center gap-1">
+                <span className="text-xs font-bold text-amber-600 uppercase tracking-wider flex justify-end items-center gap-1">
                   <span className="h-1.5 w-1.5 rounded-full bg-amber-500" /> Unbilled Load
                 </span>
                 <p className="text-base font-extrabold text-slate-800 tracking-tight">

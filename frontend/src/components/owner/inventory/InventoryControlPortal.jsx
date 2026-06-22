@@ -242,13 +242,17 @@ export default function InventoryControlPortal() {
           onClick={() => fileInputRef.current?.click()}
           className="flex-1 bg-white hover:bg-slate-50 border border-slate-200 text-slate-800 rounded-xl py-2 flex flex-col items-center justify-center transition-colors shadow-2xs group"
         >
-          <div className="flex items-center gap-x-1.5 text-sm font-bold">
-            <svg className="w-4 h-4 text-slate-500 group-hover:text-indigo-600 transition-colors" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-            </svg>
-            <span>Invoice</span>
+          <div className="flex flex-col items-center justify-center gap-y-1">
+            <div className="flex items-center gap-x-1.5 text-sm font-bold">
+              <svg className="w-4 h-4 text-slate-500 group-hover:text-indigo-600 transition-colors" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+              </svg>
+              <span>Invoice</span>
+            </div>
+            <span className="inline-flex items-center rounded-md bg-indigo-50 px-2 py-0.5 text-[9px] font-bold text-indigo-700 ring-1 ring-inset ring-indigo-700/20 uppercase tracking-widest">
+              Gemini 2.5 Flash
+            </span>
           </div>
-          <span className="text-[9px] font-semibold text-slate-400 tracking-wider mt-0.5">(2.5 flash)</span>
         </button>
 
         {/* Right Button: Modify Inventory */}

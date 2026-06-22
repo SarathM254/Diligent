@@ -95,7 +95,7 @@ export default function CashPaymentSettlement({ salesman, onSettlementSuccess })
     <div className="w-full min-h-screen max-w-md mx-auto bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden flex flex-col justify-between">
       
       {/* Component Title Header */}
-      <div className="sticky top-0 bg-white border-b border-slate-200/80 px-4 py-3.5 flex items-center gap-x-4 z-10 shadow-xs">
+      <div className="sticky top-0 bg-white border-b border-slate-200/80 px-4 py-3 flex items-center gap-x-4 z-10 shadow-xs">
                 <button
                     type="button"
                     disabled={isSubmitting}

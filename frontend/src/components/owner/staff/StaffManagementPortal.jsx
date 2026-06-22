@@ -217,7 +217,7 @@ export default function StaffManagementPortal() {
       <button
         type="button"
         onClick={openCreateModal}
-        className="fixed bottom-6 right-47/100  translate-x-37.5 max-md:right-6 max-md:translate-x-0 h-12 px-4 bg-indigo-950 hover:bg-indigo-900 active:bg-slate-900 text-white text-xs font-black tracking-wider uppercase rounded-full shadow-lg hover:shadow-xl transition-all duration-150 z-40 flex items-center justify-center gap-x-1.5 border border-indigo-900/40"
+        className="fixed bottom-6 left-1/2 -translate-x-1/2 w-fit max-w-[calc(100%-2rem)] md:absolute h-12 px-4 bg-indigo-950 hover:bg-indigo-900 active:bg-slate-900 text-white text-xs font-black tracking-wider uppercase rounded-full shadow-lg hover:shadow-xl transition-all duration-150 z-40 flex items-center justify-center gap-x-1.5 border border-indigo-900/40"
       >
         <span className="text-sm font-light leading-none">&#43;</span>
         <span>New Staff</span>

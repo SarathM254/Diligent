@@ -157,15 +157,15 @@ export default function BrandManagerPortal() {
           categories.map((category, idx) => {
             const isOpen = expandedCategoryId === category.id;
             
-            // Alternating color logic
-            const isEven = idx % 2 === 0;
-            const headerBg = isEven ? 'bg-slate-50 hover:bg-slate-100' : 'bg-indigo-50/50 hover:bg-indigo-100/50';
-            const bodyGradient = isEven 
-              ? 'bg-gradient-to-b from-slate-100 to-slate-50' 
-              : 'bg-gradient-to-b from-indigo-100/60 to-indigo-50/40';
-            
-            return (
-              <div key={category.id} className="rounded-xl border border-slate-200/60 overflow-hidden shadow-3xs transition-all duration-200">
+          // Solid alternating color logic
+          const isEven = idx % 2 === 0;
+          const headerBg = isEven ? 'bg-slate-50/70 hover:bg-slate-100/80' : 'bg-indigo-50/40 hover:bg-indigo-100/50';
+          const bodyBg = isEven ? 'bg-slate-50/30' : 'bg-indigo-50/20';
+          const itemHoverBg = isEven ? 'hover:bg-slate-100/50' : 'hover:bg-indigo-100/50';
+          const borderClass = isEven ? 'border-slate-200/60' : 'border-indigo-100/60';
+          
+          return (
+            <div key={category.id} className={`rounded-xl border overflow-hidden shadow-3xs transition-all duration-200 ${borderClass}`}>
                 {/* Accordion Header */}
                 <div 
                   onClick={() => toggleCategory(category.id)}
@@ -195,12 +195,12 @@ export default function BrandManagerPortal() {
 
                 {/* Accordion Body (Brands List) */}
                 {isOpen && (
-                  <div className={`border-t border-slate-100 divide-y divide-slate-200/60 flex flex-col ${bodyGradient}`}>
+                  <div className={`border-t ${borderClass} divide-y ${isEven ? 'divide-slate-200/50' : 'divide-indigo-100/50'} flex flex-col ${bodyBg}`}>
                     {category.brands.length === 0 ? (
                       <p className="text-xs text-center text-slate-500 py-6 font-medium">No brands added to this category yet.</p>
                     ) : (
                       category.brands.map((brand) => (
-                        <div key={brand.id} className="px-4 py-3 flex items-center justify-between gap-x-4 hover:bg-white/40 transition-colors">
+                        <div key={brand.id} className={`px-4 py-3 flex items-center justify-between gap-x-4 transition-colors ${itemHoverBg}`}>
                           {/* Left: Name and Code */}
                           <div className="flex-1">
                             <h4 className="text-sm font-bold text-slate-800 tracking-tight">{brand.name}</h4>
@@ -275,7 +275,7 @@ export default function BrandManagerPortal() {
       <button
         type="button"
         onClick={() => setIsAddCategoryOpen(true)}
-        className="fixed bottom-6 right-47/100 translate-x-37.5 max-md:right-6 max-md:translate-x-0 h-12 px-4 bg-indigo-950 hover:bg-indigo-900 active:bg-slate-900 text-white text-xs font-black tracking-wider uppercase rounded-full shadow-lg hover:shadow-xl transition-all duration-150 z-40 flex items-center justify-center gap-x-1.5 border border-indigo-900/40"
+        className="fixed bottom-6 left-1/2 -translate-x-1/2 w-fit max-w-[calc(100%-2rem)] md:absolute h-12 px-4 bg-indigo-950 hover:bg-indigo-900 active:bg-slate-900 text-white text-xs font-black tracking-wider uppercase rounded-full shadow-lg hover:shadow-xl transition-all duration-150 z-40 flex items-center justify-center gap-x-1.5 border border-indigo-900/40"
       >
         <span className="text-sm font-light leading-none">&#43;</span>
         <span>New Category</span>

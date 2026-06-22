@@ -120,6 +120,7 @@ export const getSalesmanDailyStatus = async (req, res) => {
 
     const bill = await Bill.findOne({ salesmanId, billingDate: operationalDate }).lean();
     const payment = await Payment.findOne({ salesmanId, paymentDate: operationalDate }).lean();
+    const user = await User.findById(salesmanId).lean();
 
     let billStatus = 'Not Submitted';
     if (bill) {
@@ -133,7 +134,11 @@ export const getSalesmanDailyStatus = async (req, res) => {
       else if (payment.status === 'unverified') cashStatus = 'Unverified';
     }
 
-    return res.status(200).json({ billStatus, cashStatus });
+    return res.status(200).json({ 
+      billStatus, 
+      cashStatus,
+      bf: user ? (user.broughtForwardDebt || 0) : 0
+    });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }

@@ -143,7 +143,7 @@ export default function App() {
   if (role === 'none') {
     return (
       <div className="w-full max-w-md mx-auto p-4 min-h-screen flex flex-col items-center justify-center bg-gray-50 text-gray-900 font-sans">
-        <div className="bg-white shadow-xl rounded-2xl p-8 w-full flex flex-col gap-8 text-center border border-gray-100">
+        <div className="bg-white shadow-xl rounded-2xl p-6 w-full flex flex-col gap-4 text-center border border-gray-100">
           <div className="flex flex-col items-center gap-2">
             <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-2xl font-extrabold mb-2 shadow-inner">
               G
@@ -203,7 +203,7 @@ export default function App() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto p-4 min-h-screen bg-gray-50 flex flex-col font-sans">
+    <div className="w-full max-w-md mx-auto p-0 min-h-screen bg-gray-50 flex flex-col font-sans">
       <Toaster position="top-center" toastOptions={{ style: { background: '#333', color: '#fff' } }} />
       <Header />
       

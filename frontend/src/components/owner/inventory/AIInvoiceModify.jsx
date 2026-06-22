@@ -73,15 +73,15 @@ export default function AIInvoiceModify({ categoriesData, initialData, onPreview
         {categoriesData.map((category, idx) => {
           const isOpen = expandedCategoryId === category.id;
           
-          // Alternating color logic
+          // Solid alternating color logic
           const isEven = idx % 2 === 0;
-          const headerBg = isEven ? 'bg-slate-50 hover:bg-slate-100' : 'bg-indigo-50/50 hover:bg-indigo-100/50';
-          const bodyGradient = isEven 
-            ? 'bg-gradient-to-b from-slate-100 to-slate-50' 
-            : 'bg-gradient-to-b from-indigo-100/60 to-indigo-50/40';
+          const headerBg = isEven ? 'bg-slate-50/70 hover:bg-slate-100/80' : 'bg-indigo-50/40 hover:bg-indigo-100/50';
+          const bodyBg = isEven ? 'bg-slate-50/30' : 'bg-indigo-50/20';
+          const itemHoverBg = isEven ? 'hover:bg-slate-100/50' : 'hover:bg-indigo-100/50';
+          const borderClass = isEven ? 'border-slate-200/60' : 'border-indigo-100/60';
 
           return (
-            <div key={category.id} className="rounded-xl border border-slate-200/60 overflow-hidden shadow-xs transition-all duration-200">
+            <div key={category.id} className={`rounded-xl border overflow-hidden shadow-xs transition-all duration-200 ${borderClass}`}>
               <button
                 type="button"
                 onClick={() => toggleCategory(category.id)}
@@ -94,9 +94,9 @@ export default function AIInvoiceModify({ categoriesData, initialData, onPreview
               </button>
 
               {isOpen && (
-                <div className={`border-t border-slate-100 divide-y divide-slate-200/60 ${bodyGradient}`}>
+                <div className={`border-t ${borderClass} divide-y ${isEven ? 'divide-slate-200/50' : 'divide-indigo-100/50'} ${bodyBg}`}>
                   {category.brands.map((brand) => (
-                    <div key={brand.id} className="px-4 py-3 flex items-center justify-between gap-x-4 hover:bg-white/40 transition-colors">
+                    <div key={brand.id} className={`px-4 py-3 flex items-center justify-between gap-x-4 transition-colors ${itemHoverBg}`}>
                       <span className="text-sm font-medium text-slate-800">{brand.name}</span>
                       
                       <div className="relative flex items-center max-w-25">

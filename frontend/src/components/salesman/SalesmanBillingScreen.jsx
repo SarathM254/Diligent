@@ -156,7 +156,7 @@ export default function SalesmanBillingScreen({ salesman }) {
         <div className="w-full min-h-screen bg-slate-50 flex flex-col justify-between max-w-md rounded-2xl mx-auto border-x border-slate-200/80 shadow-sm">
 
             {/* FIXED PERMANENT UNIVERSAL HEADER LAYER */}
-            <div className="sticky top-0 bg-white border-b border-slate-200/80 px-4 py-3.5 flex items-center gap-x-4 z-10 shadow-xs">
+            <div className="sticky top-0 bg-white border-b border-slate-200/80 px-4 py-2 flex items-center gap-x-4 z-10 shadow-xs">
                 <button
                     type="button"
                     onClick={handleNavigationBackRoute}
@@ -192,7 +192,7 @@ export default function SalesmanBillingScreen({ salesman }) {
             )}
 
             {/* FIXED PERSISTENT BOTTOM TOTAL METRICS BLOCK */}
-            <div className="sticky bottom-0 bg-white border-t border-slate-200/80 p-4 shadow-sm z-10">
+            <div className="bg-white border-t border-slate-200/80 p-4 shadow-sm">
                 <div className="flex items-center justify-between mb-3.5 px-3.5">
                     <span className="text-xl font-bold text-slate-900 uppercase">
                         Bill Value:
