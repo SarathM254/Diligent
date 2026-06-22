@@ -68,31 +68,39 @@ export default function SalesmanPriceList() {
             </div>
           ) : (
             <div className="space-y-5">
-              {liveCategories.map((category) => (
-                <div key={category.id}>
-                  <h3 className="text-[11px] font-bold text-indigo-500 uppercase tracking-widest mb-2 border-b border-slate-100 pb-1.5">
-                    {category.name}
-                  </h3>
-                  <div className="space-y-2">
-                    {category.brands.map((brand) => (
-                      <div key={brand.id} className="flex justify-between items-center py-0.5">
-                        <span className="text-sm font-medium text-slate-800 tracking-tight flex items-center">
-                          {brand.name}
-                          <span className="text-[9px] font-bold text-slate-400 ml-1">(R)</span>
-                        </span>
-                        <div className="flex items-baseline text-right">
-                          <span className="text-[13px] font-bold text-slate-900 tracking-tight">
-                            ₹{brand.retail.toLocaleString('en-IN')}
+              {liveCategories.map((category, idx) => {
+                const isEven = idx % 2 === 0;
+                const headerColor = isEven ? 'text-indigo-500 border-indigo-100' : 'text-emerald-500 border-emerald-100';
+                const bodyGradient = isEven 
+                  ? 'bg-gradient-to-b from-slate-50 to-white' 
+                  : 'bg-gradient-to-b from-indigo-50/30 to-white';
+
+                return (
+                  <div key={category.id} className={`rounded-xl border border-slate-100 overflow-hidden ${bodyGradient}`}>
+                    <h3 className={`text-[11px] font-bold uppercase tracking-widest px-4 py-2 border-b bg-white/50 ${headerColor}`}>
+                      {category.name}
+                    </h3>
+                    <div className="divide-y divide-slate-50">
+                      {category.brands.map((brand) => (
+                        <div key={brand.id} className="flex justify-between items-center px-4 py-2.5 hover:bg-slate-50/50 transition-colors">
+                          <span className="text-sm font-medium text-slate-800 tracking-tight flex items-center">
+                            {brand.name}
+                            <span className="text-[9px] font-bold text-slate-400 ml-1">(R)</span>
                           </span>
-                          <span className="text-[10px] font-semibold text-slate-400 ml-1 whitespace-nowrap">
-                            per M
-                          </span>
+                          <div className="flex items-baseline text-right">
+                            <span className="text-[13px] font-bold text-slate-900 tracking-tight">
+                              ₹{brand.retail.toLocaleString('en-IN')}
+                            </span>
+                            <span className="text-[10px] font-semibold text-slate-400 ml-1 whitespace-nowrap">
+                              per M
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
 

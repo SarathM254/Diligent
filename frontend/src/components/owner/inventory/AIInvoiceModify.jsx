@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 export default function AIInvoiceModify({ categoriesData, initialData, onPreview, onCancel }) {
-  const [expandedCategories, setExpandedCategories] = useState({});
+  const [expandedCategoryId, setExpandedCategoryId] = useState(null);
 
   // Flatten categories into quick lookup arrays
   const allBrands = [];
@@ -17,7 +17,7 @@ export default function AIInvoiceModify({ categoriesData, initialData, onPreview
   });
 
   const toggleCategory = (id) => {
-    setExpandedCategories(prev => ({ ...prev, [id]: !prev[id] }));
+    setExpandedCategoryId(prev => (prev === id ? null : id));
   };
 
   const handleBlurSanitization = (event, fieldId) => {
@@ -70,15 +70,22 @@ export default function AIInvoiceModify({ categoriesData, initialData, onPreview
       </div>
 
       <div className="flex-1 p-4 space-y-3 overflow-y-auto">
-        {categoriesData.map((category) => {
-          const isOpen = !!expandedCategories[category.id];
+        {categoriesData.map((category, idx) => {
+          const isOpen = expandedCategoryId === category.id;
           
+          // Alternating color logic
+          const isEven = idx % 2 === 0;
+          const headerBg = isEven ? 'bg-slate-50 hover:bg-slate-100' : 'bg-indigo-50/50 hover:bg-indigo-100/50';
+          const bodyGradient = isEven 
+            ? 'bg-gradient-to-b from-slate-100 to-slate-50' 
+            : 'bg-gradient-to-b from-indigo-100/60 to-indigo-50/40';
+
           return (
-            <div key={category.id} className="bg-white rounded-xl border border-slate-200/60 overflow-hidden shadow-2xs">
+            <div key={category.id} className="rounded-xl border border-slate-200/60 overflow-hidden shadow-xs transition-all duration-200">
               <button
                 type="button"
                 onClick={() => toggleCategory(category.id)}
-                className="w-full px-4 py-3.5 flex items-center justify-between bg-white hover:bg-slate-50/50 text-left transition-colors"
+                className={`w-full px-4 py-3.5 flex items-center justify-between transition-colors duration-150 ${headerBg}`}
               >
                 <span className="text-sm font-bold text-slate-800 tracking-tight">{category.name}</span>
                 <svg className={`w-4 h-4 text-slate-400 transform transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -87,9 +94,9 @@ export default function AIInvoiceModify({ categoriesData, initialData, onPreview
               </button>
 
               {isOpen && (
-                <div className="border-t border-slate-100 bg-slate-50/40 divide-y divide-slate-100">
+                <div className={`border-t border-slate-100 divide-y divide-slate-200/60 ${bodyGradient}`}>
                   {category.brands.map((brand) => (
-                    <div key={brand.id} className="px-4 py-3 flex items-center justify-between gap-x-4 bg-white">
+                    <div key={brand.id} className="px-4 py-3 flex items-center justify-between gap-x-4 hover:bg-white/40 transition-colors">
                       <span className="text-sm font-medium text-slate-800">{brand.name}</span>
                       
                       <div className="relative flex items-center max-w-25">

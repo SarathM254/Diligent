@@ -9,7 +9,7 @@ export default function BrandManagerPortal() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const [expandedCategories, setExpandedCategories] = useState({});
+  const [expandedCategoryId, setExpandedCategoryId] = useState(null);
   const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
   
   // To track which category we are adding/editing a brand in (null means modal is closed)
@@ -52,7 +52,7 @@ export default function BrandManagerPortal() {
 
   // --- HANDLERS ---
   const toggleCategory = (id) => {
-    setExpandedCategories(prev => ({ ...prev, [id]: !prev[id] }));
+    setExpandedCategoryId(prev => (prev === id ? null : id));
   };
 
   const handleDeleteCategory = (e, category) => {
@@ -154,15 +154,22 @@ export default function BrandManagerPortal() {
             <p className="text-xs text-slate-400 mt-1">Add a new category to get started.</p>
           </div>
         ) : (
-          categories.map((category) => {
-            const isOpen = !!expandedCategories[category.id];
+          categories.map((category, idx) => {
+            const isOpen = expandedCategoryId === category.id;
+            
+            // Alternating color logic
+            const isEven = idx % 2 === 0;
+            const headerBg = isEven ? 'bg-slate-50 hover:bg-slate-100' : 'bg-indigo-50/50 hover:bg-indigo-100/50';
+            const bodyGradient = isEven 
+              ? 'bg-gradient-to-b from-slate-100 to-slate-50' 
+              : 'bg-gradient-to-b from-indigo-100/60 to-indigo-50/40';
             
             return (
-              <div key={category.id} className="bg-white rounded-xl border border-slate-200/60 overflow-hidden shadow-3xs transition-all duration-200">
+              <div key={category.id} className="rounded-xl border border-slate-200/60 overflow-hidden shadow-3xs transition-all duration-200">
                 {/* Accordion Header */}
                 <div 
                   onClick={() => toggleCategory(category.id)}
-                  className="w-full px-4 py-3.5 flex items-center justify-between bg-white hover:bg-slate-50/50 cursor-pointer transition-colors"
+                  className={`w-full px-4 py-3.5 flex items-center justify-between cursor-pointer transition-colors ${headerBg}`}
                 >
                   <span className="text-sm font-bold text-slate-800 tracking-tight">{category.name}</span>
                   
@@ -188,12 +195,12 @@ export default function BrandManagerPortal() {
 
                 {/* Accordion Body (Brands List) */}
                 {isOpen && (
-                  <div className="border-t border-slate-100 bg-slate-50/40 divide-y divide-slate-100 flex flex-col">
+                  <div className={`border-t border-slate-100 divide-y divide-slate-200/60 flex flex-col ${bodyGradient}`}>
                     {category.brands.length === 0 ? (
-                      <p className="text-xs text-center text-slate-400 py-6 font-medium">No brands added to this category yet.</p>
+                      <p className="text-xs text-center text-slate-500 py-6 font-medium">No brands added to this category yet.</p>
                     ) : (
                       category.brands.map((brand) => (
-                        <div key={brand.id} className="px-4 py-3 flex items-center justify-between gap-x-4 bg-white group hover:bg-slate-50/50 transition-colors">
+                        <div key={brand.id} className="px-4 py-3 flex items-center justify-between gap-x-4 hover:bg-white/40 transition-colors">
                           {/* Left: Name and Code */}
                           <div className="flex-1">
                             <h4 className="text-sm font-bold text-slate-800 tracking-tight">{brand.name}</h4>

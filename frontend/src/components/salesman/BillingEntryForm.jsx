@@ -3,7 +3,7 @@ import React from 'react';
 export default function BillingEntryForm({ 
   register, 
   mockCategories, 
-  expandedCategories, 
+  expandedCategoryId, 
   toggleCategory, 
   handleBlurSanitization,
   handleSubmit,
@@ -11,19 +11,26 @@ export default function BillingEntryForm({
 }) {
   return (
     <form onSubmit={handleSubmit(onPreviewSubmit)} className="flex-1 p-4 space-y-3 overflow-y-auto">
-      {mockCategories.map((category) => {
-        const isOpen = !!expandedCategories[category.id];
+      {mockCategories.map((category, idx) => {
+        const isOpen = expandedCategoryId === category.id;
+        
+        // Alternating color logic
+        const isEven = idx % 2 === 0;
+        const headerBg = isEven ? 'bg-slate-50 hover:bg-slate-100' : 'bg-indigo-50/50 hover:bg-indigo-100/50';
+        const bodyGradient = isEven 
+          ? 'bg-gradient-to-b from-slate-100 to-slate-50' 
+          : 'bg-gradient-to-b from-indigo-100/60 to-indigo-50/40';
         
         return (
           <div 
             key={category.id} 
-            className="bg-white rounded-xl border border-slate-200/60 overflow-hidden shadow-xs transition-all duration-200"
+            className="rounded-xl border border-slate-200/60 overflow-hidden shadow-xs transition-all duration-200"
           >
             {/* Category Striver-Style Toggled Title Selector Bar */}
             <button
               type="button"
               onClick={() => toggleCategory(category.id)}
-              className="w-full px-3.5 py-3 flex items-center justify-between bg-white hover:bg-slate-50 text-left transition-colors duration-150"
+              className={`w-full px-3.5 py-3 flex items-center justify-between transition-colors duration-150 ${headerBg}`}
             >
               <span className="text-sm font-bold text-slate-800 tracking-tight">
                 {category.name}
@@ -40,11 +47,11 @@ export default function BillingEntryForm({
 
             {/* Collapsible Content Drawer Container */}
             {isOpen && (
-              <div className="border-t border-slate-100 bg-slate-50/40 divide-y divide-slate-100">
+              <div className={`border-t border-slate-100 divide-y divide-slate-200/60 ${bodyGradient}`}>
                 {category.brands.map((brand) => (
                   <div 
                     key={brand.id} 
-                    className="px-3.5 py-2 flex items-center justify-between gap-x-4 bg-white"
+                    className="px-3.5 py-2 flex items-center justify-between gap-x-4 hover:bg-white/40 transition-colors"
                   >
                     {/* Left Column Brand Product Descriptor */}
                     <div className="space-y-0.5">

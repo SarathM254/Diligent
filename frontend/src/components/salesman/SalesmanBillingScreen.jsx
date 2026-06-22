@@ -58,9 +58,9 @@ export default function SalesmanBillingScreen({ salesman }) {
     const [currentStep, setCurrentStep] = useState(1);
     const [finalPreviewPayload, setFinalPreviewPayload] = useState([]);
 
-    const [expandedCategories, setExpandedCategories] = useState({});
+    const [expandedCategoryId, setExpandedCategoryId] = useState(null);
     const toggleCategory = (id) => {
-      setExpandedCategories(prev => ({ ...prev, [id]: !prev[id] }));
+      setExpandedCategoryId(prev => (prev === id ? null : id));
     };
 
     const handleBlurSanitization = (event, fieldId) => {
@@ -181,7 +181,7 @@ export default function SalesmanBillingScreen({ salesman }) {
               <BillingEntryForm 
                 register={register}
                 mockCategories={liveCategories}
-                expandedCategories={expandedCategories}
+                expandedCategoryId={expandedCategoryId}
                 toggleCategory={toggleCategory}
                 handleBlurSanitization={handleBlurSanitization}
                 handleSubmit={handleSubmit}
