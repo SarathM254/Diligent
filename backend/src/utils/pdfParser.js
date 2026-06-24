@@ -1,4 +1,4 @@
-import { PDFParse } from 'pdf-parse';
+import pdf from './pdfWrapper.cjs';
 
 /**
  * Parses an SBI PDF bank statement and extracts credit transaction details (UTR, amount, date).
@@ -6,9 +6,8 @@ import { PDFParse } from 'pdf-parse';
  * @returns {Promise<Array<{utr: string, amount: number, date: Date, rawLine: string}>>}
  */
 export const parseSBIStatement = async (fileBuffer) => {
-  const parser = new PDFParse({ data: fileBuffer });
   try {
-    const data = await parser.getText({});
+    const data = await pdf(fileBuffer);
     // Replace all newlines with a single space to merge wrapped text (handles split UTRs)
     const fullText = data.text.replace(/\n/g, ' ');
     
@@ -73,7 +72,5 @@ export const parseSBIStatement = async (fileBuffer) => {
   } catch (error) {
     console.error('PDF parsing error details:', error);
     throw new Error('Failed to parse SBI statement PDF. Check file format.');
-  } finally {
-    await parser.destroy();
   }
 };
