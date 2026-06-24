@@ -6,17 +6,17 @@ import { reconcileStatement, getStatementsHistory } from '../controllers/reconci
 
 // If Diligent has auth middleware, you would import it here.
 // e.g., import { protect, authorize } from '../middlewares/authMiddleware.js';
-import { verifyOwner } from '../middlewares/authMiddleware.js';
+import { verifyOwner, verifySalesman } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
 // --- Salesman Routes ---
 // Base: /api/upi/salesman
-router.post('/salesman/payments', submitPayment);
-router.get('/salesman/payments', getMyPayments);
-router.delete('/salesman/payments/:id', deletePayment);
-router.post('/salesman/payments/submit-all', submitAllPayments);
+router.post('/salesman/payments', verifySalesman, submitPayment);
+router.get('/salesman/payments', verifySalesman, getMyPayments);
+router.delete('/salesman/payments/:id', verifySalesman, deletePayment);
+router.post('/salesman/payments/submit-all', verifySalesman, submitAllPayments);
 
 // --- Owner Routes ---
 // Base: /api/upi/owner

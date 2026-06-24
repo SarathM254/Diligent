@@ -180,7 +180,16 @@ export default function UpiPaymentEntry({ salesman }) {
   };
 
   if (loading) {
-    return <div className="p-8 flex items-center justify-center bg-slate-50"><div className="animate-spin w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full" /></div>;
+    return (
+      <div className="flex flex-col items-center justify-center h-64 bg-slate-50 space-y-4">
+        <div className="relative w-12 h-12">
+          <div className="absolute inset-0 rounded-full border-t-2 border-emerald-500 animate-spin"></div>
+          <div className="absolute inset-2 rounded-full border-l-2 border-teal-500 animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.2s' }}></div>
+          <div className="absolute inset-4 rounded-full border-b-2 border-green-500 animate-spin"></div>
+        </div>
+        <div className="text-emerald-600 font-medium tracking-widest text-sm uppercase animate-pulse">Initializing Portal...</div>
+      </div>
+    );
   }
 
   return (

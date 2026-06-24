@@ -27,7 +27,7 @@ export const submitPayment = async (req, res) => {
     }
 
     // req.user might be an object containing _id or id depending on the middleware
-    const salesmanId = req.user._id || req.user.id || req.body.salesmanId;
+    const salesmanId = (req.user && (req.user._id || req.user.id)) || req.body.salesmanId;
 
     const payment = await Payment.create({
       salesman: salesmanId,
@@ -53,7 +53,7 @@ export const submitPayment = async (req, res) => {
 // @access  Private (Salesman only)
 export const getMyPayments = async (req, res) => {
   try {
-    const salesmanId = req.query.salesmanId || req.user._id || req.user.id;
+    const salesmanId = req.query.salesmanId || (req.user && (req.user._id || req.user.id));
     const payments = await Payment.find({ salesman: salesmanId })
       .sort({ createdAt: -1 });
 
@@ -73,7 +73,7 @@ export const getMyPayments = async (req, res) => {
 // @access  Private (Salesman only)
 export const deletePayment = async (req, res) => {
   try {
-    const salesmanId = req.query.salesmanId || req.user._id || req.user.id;
+    const salesmanId = req.query.salesmanId || (req.user && (req.user._id || req.user.id));
     const payment = await Payment.findOne({ _id: req.params.id, salesman: salesmanId });
     if (!payment) {
       return res.status(404).json({ success: false, message: 'Payment not found' });
@@ -95,7 +95,7 @@ export const deletePayment = async (req, res) => {
 // @access  Private (Salesman only)
 export const submitAllPayments = async (req, res) => {
   try {
-    const salesmanId = req.body.salesmanId || req.user._id || req.user.id;
+    const salesmanId = req.body.salesmanId || (req.user && (req.user._id || req.user.id));
     const result = await Payment.updateMany(
       { salesman: salesmanId, isSubmittedToOwner: false },
       { $set: { isSubmittedToOwner: true } }

@@ -108,7 +108,16 @@ export default function UpiTallyDesk() {
   };
 
   if (loading && !stats) {
-    return <div className="p-10 flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full" /></div>;
+    return (
+      <div className="flex flex-col items-center justify-center h-64 space-y-4">
+        <div className="relative w-12 h-12">
+          <div className="absolute inset-0 rounded-full border-t-2 border-indigo-500 animate-spin"></div>
+          <div className="absolute inset-2 rounded-full border-r-2 border-purple-500 animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
+          <div className="absolute inset-4 rounded-full border-b-2 border-pink-500 animate-spin"></div>
+        </div>
+        <div className="text-indigo-500 font-medium tracking-widest text-sm uppercase animate-pulse">Loading Workspace...</div>
+      </div>
+    );
   }
 
   return (
