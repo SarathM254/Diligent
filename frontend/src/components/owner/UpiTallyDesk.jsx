@@ -307,30 +307,26 @@ export default function UpiTallyDesk() {
                     const hasError = group.payments.some(p => ['mistake', 'missing', 'unreconciled'].includes(p.status));
                     const hasPending = group.payments.some(p => p.status === 'pending');
                     
-                    let glowClass = '';
                     let borderClass = 'border-slate-200';
                     let iconBg = 'bg-slate-100 text-slate-700';
                     let statusText = '';
 
                     if (hasError) {
-                      glowClass = 'shadow-[0_0_20px_rgba(225,29,72,0.25)]';
                       borderClass = 'border-rose-400 z-10 relative';
                       iconBg = 'bg-rose-100 text-rose-700';
                       statusText = 'Errors Found';
                     } else if (hasPending) {
-                      glowClass = 'shadow-[0_0_20px_rgba(245,158,11,0.2)] animate-[pulse_3s_ease-in-out_infinite]';
                       borderClass = 'border-amber-400';
                       iconBg = 'bg-amber-100 text-amber-700';
                       statusText = 'Pending Tally';
                     } else {
-                      glowClass = 'shadow-[0_0_20px_rgba(16,185,129,0.2)]';
                       borderClass = 'border-emerald-400';
                       iconBg = 'bg-emerald-100 text-emerald-700';
                       statusText = 'Perfectly Tallied';
                     }
 
                     return (
-                    <div key={group.salesman._id} className={`rounded-xl overflow-hidden bg-white border-[2px] transition-all duration-500 ${borderClass} ${glowClass}`}>
+                    <div key={group.salesman._id} className={`rounded-xl overflow-hidden bg-white border-[2px] ${borderClass}`}>
                       <button
                         onClick={() => setExpandedSalesmanId(expandedSalesmanId === group.salesman._id ? null : group.salesman._id)}
                         className="w-full bg-slate-50 hover:bg-slate-100 transition-colors px-4 sm:px-5 py-4 flex justify-between items-center outline-none"
