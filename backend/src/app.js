@@ -6,6 +6,7 @@ import userRoutes from "./routes/userRoutes.js";
 import brandRoutes from "./routes/brandRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import upiRoutes from "./routes/upiRoutes.js";
 
 const app = express(); 
 
@@ -25,6 +26,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/brands", brandRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/upi", upiRoutes);
 
 app.get('/', (req, res) => {
   res.json({ 

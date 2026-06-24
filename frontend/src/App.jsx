@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Toaster } from 'react-hot-toast';
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import './App.css';
 import apiClient from './api/apiClient';
 
@@ -11,6 +11,7 @@ import LedgerControlPortal from './components/owner/ledger/LedgerControlPortal';
 import StaffManagementPortal from './components/owner/staff/StaffManagementPortal';
 import InventoryControlPortal from './components/owner/inventory/InventoryControlPortal';
 import BrandManagerPortal from './components/owner/brand/BrandManagerPortal';
+import UpiTallyDesk from './components/owner/UpiTallyDesk';
 
 // Operator Components
 import OperatorDashboard from './components/operator/OperatorDashboard';
@@ -23,9 +24,11 @@ import SalesmanStatementHistory from './components/salesman/SalesmanStatementHis
 import SalesmanBillingScreen from './components/salesman/SalesmanBillingScreen';
 import SalesmanSelectionList from './components/salesman/SalesmanSelectionList';
 import SalesmanPriceList from './components/salesman/SalesmanPriceList';
+import UpiPaymentEntry from './components/salesman/UpiPaymentEntry';
 
 export default function App() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [role, setRole] = useState(() => {
     return localStorage.getItem('session_role') || 'none';
@@ -202,8 +205,11 @@ export default function App() {
     }
   };
 
+  const isDesktopView = location.pathname === '/owner/upi';
+  const containerMaxWidth = isDesktopView ? 'max-w-full' : 'max-w-md';
+
   return (
-    <div className="w-full max-w-md mx-auto p-0 min-h-screen bg-gray-50 flex flex-col font-sans">
+    <div className={`w-full mx-auto p-0 min-h-screen bg-gray-50 flex flex-col font-sans ${containerMaxWidth}`}>
       <Toaster position="top-center" toastOptions={{ style: { background: '#333', color: '#fff' } }} />
       <Header />
       
@@ -225,6 +231,7 @@ export default function App() {
                 <Route path="/salesman/billing" element={<SalesmanBillingScreen salesman={activeSalesman} />} />
                 <Route path="/salesman/cash" element={<CashPaymentSettlement salesman={activeSalesman} />} />
                 <Route path="/salesman/prices" element={<SalesmanPriceList />} />
+                <Route path="/salesman/upi" element={<UpiPaymentEntry salesman={activeSalesman} />} />
               </>
             )}
             <Route path="*" element={<Navigate to="/salesman" replace />} />
@@ -273,6 +280,7 @@ export default function App() {
               <Route path="/owner/inventory" element={<InventoryControlPortal />} />
               <Route path="/owner/brands" element={<BrandManagerPortal />} />
               <Route path="/owner/billing_ops" element={<OperatorDashboard />} />
+              <Route path="/owner/upi" element={<UpiTallyDesk />} />
               <Route path="*" element={<Navigate to="/owner" replace />} />
             </Routes>
           )}

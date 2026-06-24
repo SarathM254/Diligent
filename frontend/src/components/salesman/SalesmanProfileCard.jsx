@@ -106,14 +106,17 @@ export default function SalesmanProfileCard({ salesman }) {
             </div>
           </div> 
 
-          <div className="flex gap-2">
-            <button type="button" onClick={() => navigate('/salesman/billing')} className="flex-1 flex justify-center px-3 py-2.5 rounded-lg font-bold text-sm tracking-tight bg-slate-900 text-white transition duration-150 ease-in-out active:scale-95 active:bg-slate-800">
+          <div className="grid grid-cols-2 gap-2 mt-2">
+            <button type="button" onClick={() => navigate('/salesman/billing')} className="flex justify-center px-3 py-3 rounded-xl font-bold text-sm tracking-widest uppercase bg-slate-900 text-white transition duration-150 ease-in-out active:scale-95 hover:bg-slate-800 shadow-sm">
               Bill
             </button>
-            <button type="button" onClick={() => navigate('/salesman/cash')} className="flex-1 flex justify-center px-3 py-2.5 rounded-lg font-bold text-sm tracking-tight bg-white text-slate-700 border border-slate-200 shadow-sm transition duration-150 ease-in-out active:scale-95 hover:bg-slate-50">
+            <button type="button" onClick={() => navigate('/salesman/upi')} className="flex justify-center px-3 py-3 rounded-xl font-bold text-sm tracking-widest uppercase bg-indigo-600 text-white transition duration-150 ease-in-out active:scale-95 hover:bg-indigo-700 shadow-sm">
+              UPI
+            </button>
+            <button type="button" onClick={() => navigate('/salesman/cash')} className="flex justify-center px-3 py-3 rounded-xl font-bold text-sm tracking-widest uppercase bg-white text-slate-700 border border-slate-200/80 shadow-[0_2px_4px_rgba(0,0,0,0.02)] transition duration-150 ease-in-out active:scale-95 hover:bg-slate-50">
               Cash
             </button>
-            <button type="button" onClick={() => navigate('/salesman/prices')} className="flex-1 flex justify-center px-3 py-2.5 rounded-lg font-bold text-sm tracking-tight bg-white text-slate-700 border border-slate-200 shadow-sm transition duration-150 ease-in-out active:scale-95 hover:bg-slate-50">
+            <button type="button" onClick={() => navigate('/salesman/prices')} className="flex justify-center px-3 py-3 rounded-xl font-bold text-sm tracking-widest uppercase bg-white text-slate-700 border border-slate-200/80 shadow-[0_2px_4px_rgba(0,0,0,0.02)] transition duration-150 ease-in-out active:scale-95 hover:bg-slate-50">
               Prices
             </button>
           </div>
