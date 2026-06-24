@@ -1,6 +1,4 @@
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-const pdf = require('pdf-parse');
+import { PDFParse } from 'pdf-parse';
 
 /**
  * Parses an SBI PDF bank statement and extracts credit transaction details (UTR, amount, date).
@@ -8,8 +6,9 @@ const pdf = require('pdf-parse');
  * @returns {Promise<Array<{utr: string, amount: number, date: Date, rawLine: string}>>}
  */
 export const parseSBIStatement = async (fileBuffer) => {
+  const parser = new PDFParse({ data: fileBuffer });
   try {
-    const data = await pdf(fileBuffer);
+    const data = await parser.getText({});
     // Replace all newlines with a single space to merge wrapped text (handles split UTRs)
     const fullText = data.text.replace(/\n/g, ' ');
     
@@ -74,5 +73,7 @@ export const parseSBIStatement = async (fileBuffer) => {
   } catch (error) {
     console.error('PDF parsing error details:', error);
     throw new Error('Failed to parse SBI statement PDF. Check file format.');
+  } finally {
+    await parser.destroy();
   }
 };
