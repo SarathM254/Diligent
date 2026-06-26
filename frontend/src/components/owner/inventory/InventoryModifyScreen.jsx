@@ -41,6 +41,8 @@ export default function InventoryModifyScreen({ mockCategories, inventoryState, 
           newQty += inputQty;
         } else if (actionType === 'remove') {
           newQty = Math.max(0, newQty - inputQty); // Prevent negative stock
+        } else if (actionType === 'set') {
+          newQty = Math.max(0, inputQty); // Override directly to the absolute value
         }
       }
 
@@ -124,27 +126,37 @@ export default function InventoryModifyScreen({ mockCategories, inventoryState, 
 
       {/* Persistent Bottom Action Confirmation Trigger */}
       <div className="sticky bottom-0 bg-white border-t border-slate-200/80 p-4 shadow-sm z-10">
-        <div className="flex gap-3">
+        <div className="flex gap-2">
           <button
             type="button"
             onClick={handleSubmit((data) => handleFormAction('remove', data))}
             disabled={isSubmitting}
-            className="flex-1 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 disabled:opacity-50 font-bold py-3 px-4 rounded-xl text-sm tracking-wide transition-colors flex items-center justify-center gap-x-2"
+            className="flex-1 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 disabled:opacity-50 font-bold py-2.5 px-2 rounded-xl text-sm tracking-wide transition-colors flex items-center justify-center gap-x-1"
           >
-            {isSubmitting ? 'Syncing...' : 'Remove'}
+            {isSubmitting ? 'Sync...' : 'Remove'}
           </button>
+          
+          <button
+            type="button"
+            onClick={handleSubmit((data) => handleFormAction('set', data))}
+            disabled={isSubmitting}
+            className="flex-1 bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-700 disabled:opacity-50 font-bold py-2.5 px-2 rounded-xl text-sm tracking-wide transition-colors flex items-center justify-center gap-x-1 shadow-xs"
+          >
+            {isSubmitting ? 'Sync...' : 'Set'}
+          </button>
+
           <button
             type="button"
             onClick={handleSubmit((data) => handleFormAction('add', data))}
             disabled={isSubmitting}
-            className="flex-1 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold py-3 px-4 rounded-xl text-sm tracking-wide transition-colors flex items-center justify-center shadow-xs gap-x-2"
+            className="flex-1 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold py-2.5 px-2 rounded-xl text-sm tracking-wide transition-colors flex items-center justify-center shadow-xs gap-x-1"
           >
             {isSubmitting && (
-              <svg className="w-4 h-4 animate-spin text-white" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 animate-spin text-white hidden sm:block" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
             )}
-            <span>{isSubmitting ? 'Syncing...' : 'Add'}</span>
+            <span>{isSubmitting ? 'Sync...' : 'Add'}</span>
           </button>
         </div>
       </div>
