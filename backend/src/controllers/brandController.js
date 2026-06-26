@@ -21,7 +21,7 @@ export const upsertBrand = async (req, res) => {
       categoryId, 
       wholesalePrice: wholesalePrice !== undefined ? Number(wholesalePrice) : undefined, 
       retailPrice: retailPrice !== undefined ? Number(retailPrice) : undefined,
-      inventoryCount: inventoryCount !== undefined ? Number(inventoryCount) : undefined
+      inventoryCount: inventoryCount !== undefined ? Math.round(Number(inventoryCount) * 100) / 100 : undefined
     };
 
     // Remove undefined properties so we don't accidentally blank out inventory on basic edits
@@ -55,7 +55,7 @@ export const bulkAddInventory = async (req, res) => {
       if (!item.brandId || !item.quantity) continue;
       const brand = await Brand.findByIdAndUpdate(
         item.brandId,
-        { $inc: { inventoryCount: Number(item.quantity) } },
+        { $inc: { inventoryCount: Math.round(Number(item.quantity) * 100) / 100 } },
         { new: true }
       );
       if (brand) updatedBrands.push(brand);

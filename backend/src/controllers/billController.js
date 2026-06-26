@@ -42,7 +42,7 @@ export const createOrUpdateDraftBill = async (req, res) => {
       const brand = await Brand.findById(item.brandId).catch(() => null);
       return {
         brandId: item.brandId,
-        quantity: Number(item.quantity || 0),
+        quantity: Math.round(Number(item.quantity || 0) * 100) / 100,
         rateSnapShot: brand ? brand.retailPrice : (item.rate || 0),
         brandName: brand ? brand.name : (item.brandName || 'Unknown Brand')
       };
@@ -93,7 +93,7 @@ export const updateBillStatusByOwner = async (req, res) => {
         const brand = await Brand.findById(item.brandId).catch(() => null);
         return {
           brandId: item.brandId,
-          quantity: Number(item.quantity || 0),
+          quantity: Math.round(Number(item.quantity || 0) * 100) / 100,
           rateSnapShot: brand ? brand.retailPrice : (item.rate || item.rateSnapShot || 0),
           brandName: brand ? brand.name : (item.brandName || 'Unknown Brand')
         };
