@@ -8,6 +8,7 @@ import apiClient from './api/apiClient';
 import OwnerDashboard from './components/owner/dashboard/OwnerDashboard';
 import VerificationDesk from './components/owner/verification/VerificationDesk';
 import LedgerControlPortal from './components/owner/ledger/LedgerControlPortal';
+import OwnerSalesmanHistory from './components/owner/ledger/OwnerSalesmanHistory';
 import StaffManagementPortal from './components/owner/staff/StaffManagementPortal';
 import InventoryControlPortal from './components/owner/inventory/InventoryControlPortal';
 import BrandManagerPortal from './components/owner/brand/BrandManagerPortal';
@@ -276,6 +277,7 @@ export default function App() {
               <Route path="/owner" element={<OwnerDashboard />} />
               <Route path="/owner/verify" element={<VerificationDesk />} />
               <Route path="/owner/ledger" element={<LedgerControlPortal />} />
+              <Route path="/owner/ledger/history/:salesmanId" element={<OwnerSalesmanHistory />} />
               <Route path="/owner/staff" element={<StaffManagementPortal />} />
               <Route path="/owner/inventory" element={<InventoryControlPortal />} />
               <Route path="/owner/brands" element={<BrandManagerPortal />} />
