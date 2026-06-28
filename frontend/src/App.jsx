@@ -13,6 +13,7 @@ import StaffManagementPortal from './components/owner/staff/StaffManagementPorta
 import InventoryControlPortal from './components/owner/inventory/InventoryControlPortal';
 import BrandManagerPortal from './components/owner/brand/BrandManagerPortal';
 import UpiTallyDesk from './components/owner/UpiTallyDesk';
+import OwnerBillCalculator from './components/owner/calculator/OwnerBillCalculator';
 
 // Operator Components
 import OperatorDashboard from './components/operator/OperatorDashboard';
@@ -282,6 +283,7 @@ export default function App() {
               <Route path="/owner/inventory" element={<InventoryControlPortal />} />
               <Route path="/owner/brands" element={<BrandManagerPortal />} />
               <Route path="/owner/billing_ops" element={<OperatorDashboard />} />
+              <Route path="/owner/calculator" element={<OwnerBillCalculator />} />
               <Route path="/owner/upi" element={<UpiTallyDesk />} />
               <Route path="*" element={<Navigate to="/owner" replace />} />
             </Routes>
