@@ -48,7 +48,7 @@ export default function InventoryModifyScreen({ mockCategories, inventoryState, 
 
       return {
         ...item,
-        quantity: newQty
+        quantity: Math.round(newQty * 100) / 100
       };
     });
     console.log(`[Inventory] Action: ${actionType}, Data:`, updatedInventory);

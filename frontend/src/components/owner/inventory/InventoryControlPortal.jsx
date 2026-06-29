@@ -43,7 +43,7 @@ export default function InventoryControlPortal() {
       setInventoryState(brnds.map(b => ({
         brandId: b._id,
         brandName: b.name,
-        quantity: b.inventoryCount || 0
+        quantity: Math.round((b.inventoryCount || 0) * 100) / 100
       })));
     } catch (error) {
       console.error("Failed to load inventory:", error);
@@ -208,7 +208,7 @@ export default function InventoryControlPortal() {
                           {item.brandName}
                         </span>
                         <div className="flex items-baseline gap-x-0.5 text-right font-bold text-slate-900">
-                          <span className="text-base tracking-tight">{item.quantity}</span>
+                          <span className="text-base tracking-tight">{Math.round(item.quantity * 100) / 100}</span>
                           <span className="text-[10px] font-semibold text-slate-400 uppercase ml-0.5 select-none">
                             M
                           </span>

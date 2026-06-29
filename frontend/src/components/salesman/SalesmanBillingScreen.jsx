@@ -6,6 +6,7 @@ import { createOrUpdateDraftBill } from '../../api/billApi';
 import { getCategories, getBrands } from '../../api/inventoryApi';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import apiClient from '../../api/apiClient';
 
 export default function SalesmanBillingScreen({ salesman }) {
     const navigate = useNavigate();
@@ -13,13 +14,19 @@ export default function SalesmanBillingScreen({ salesman }) {
     const [liveRates, setLiveRates] = useState({});
     const [loading, setLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isLockedView, setIsLockedView] = useState(false);
+    const [lockedBillValue, setLockedBillValue] = useState(0);
 
     const { register, handleSubmit, watch, setValue, reset } = useForm({});
 
     useEffect(() => {
         const fetchInventory = async () => {
             try {
-                const [cats, brnds] = await Promise.all([getCategories(), getBrands()]);
+                const [cats, brnds, historyRes] = await Promise.all([
+                    getCategories(), 
+                    getBrands(),
+                    apiClient.get(`/bills/history/${salesman._id}`)
+                ]);
                 const structuredCats = cats.map(cat => ({
                     id: cat._id,
                     name: cat.name,
@@ -42,6 +49,20 @@ export default function SalesmanBillingScreen({ salesman }) {
                 setLiveCategories(structuredCats);
                 setLiveRates(newRates);
                 reset(defaultVals);
+
+                const latestBill = historyRes.data[0];
+                if (latestBill && latestBill.status !== 'draft') {
+                    const formattedPayload = latestBill.items.map(item => ({
+                        brandId: item.brandId,
+                        brandName: item.brandName,
+                        quantity: item.quantity,
+                        rate: item.rateSnapShot
+                    }));
+                    setFinalPreviewPayload(formattedPayload);
+                    setLockedBillValue(latestBill.totalBillValue);
+                    setCurrentStep(2);
+                    setIsLockedView(true);
+                }
             } catch (error) {
                 console.error("Failed to load inventory:", error);
             } finally {
@@ -145,7 +166,7 @@ export default function SalesmanBillingScreen({ salesman }) {
     const handleNavigationBackRoute = () => {
         if (isSubmitting) return;
 
-        if (currentStep === 2) {
+        if (currentStep === 2 && !isLockedView) {
             setCurrentStep(1);
         } else {
             navigate('/salesman');
@@ -198,11 +219,11 @@ export default function SalesmanBillingScreen({ salesman }) {
                         Bill Value:
                     </span>
                     <span className="text-xl font-black text-slate-900 tracking-tight">
-                        ₹{compiledCeiledTotalValue().toLocaleString('en-IN')}
+                        ₹{isLockedView ? lockedBillValue.toLocaleString('en-IN') : compiledCeiledTotalValue().toLocaleString('en-IN')}
                     </span>
                 </div>
 
-                {currentStep === 1 ? (
+                {isLockedView ? null : currentStep === 1 ? (
                     <button
                         type="button"
                         onClick={() => document.getElementById('submit-billing-form').click()}
