@@ -21,12 +21,12 @@ const upiPaymentSchema = new mongoose.Schema({
     validate: {
       validator: function(v) {
         if (!v) return true;
-        if (this.paymentMode === 'upi' && !/^\d{4}$/.test(v)) {
+        if (this.paymentMode === 'upi' && !/^\d{5}$/.test(v)) {
           return false;
         }
         return true;
       },
-      message: props => `${props.value} is not a valid 4-digit UPI UTR snippet!`
+      message: props => `${props.value} is not a valid 5-digit UPI UTR snippet!`
     }
   },
   status: {
@@ -39,6 +39,10 @@ const upiPaymentSchema = new mongoose.Schema({
     default: false
   },
   isArchivedByOwner: {
+    type: Boolean,
+    default: false
+  },
+  isDeepArchivedByOwner: {
     type: Boolean,
     default: false
   },

@@ -1,6 +1,7 @@
 import { parseSBIStatement } from '../utils/pdfParser.js';
 import Payment from '../models/UpiPayment.js';
 import StatementLog from '../models/StatementLog.js';
+import VerifiedUtr from '../models/VerifiedUtr.js';
 
 // @desc    Upload SBI bank statement PDF and reconcile payments
 // @route   POST /api/upi/owner/reconciliation/upload
@@ -39,7 +40,7 @@ export const reconcileStatement = async (req, res) => {
     const mismatchedAmountPayments = [];
     const unmatchedBankTx = [];
 
-    // Group DB payments by their 4-digit UTR for O(1) array lookups
+    // Group DB payments by their 5-digit UTR for O(1) array lookups
     const dbPaymentsMap = new Map();
     dbPayments.forEach(p => {
       if (p.utr) {
@@ -50,11 +51,12 @@ export const reconcileStatement = async (req, res) => {
 
     // Track matched payment IDs to identify missing app payments
     const matchedPaymentIds = new Set();
+    const verifiedUtrsToCreate = [];
 
     // 4. Run reconciliation matching
     for (const tx of parsedTransactions) {
-      const last4 = tx.utr.slice(-4);
-      const possiblePayments = dbPaymentsMap.get(last4);
+      const last5 = tx.utr.slice(-5);
+      const possiblePayments = dbPaymentsMap.get(last5);
 
       if (possiblePayments && possiblePayments.length > 0) {
         // Find the best match (exact amount first)
@@ -89,6 +91,12 @@ export const reconcileStatement = async (req, res) => {
             utr: tx.utr,
             amount: tx.amount,
             date: tx.date
+          });
+          
+          verifiedUtrsToCreate.push({
+            utrSnippet: last5,
+            amount: tx.amount,
+            statementDate: tx.date
           });
         } else {
           mismatchedAmountPayments.push({
@@ -134,6 +142,11 @@ export const reconcileStatement = async (req, res) => {
     statementLog.talliedCount = matchedPayments.length;
     statementLog.unreconciledCount = unmatchedBankTx.length + mismatchedAmountPayments.length;
     await statementLog.save();
+
+    // 7. Store failsafe verified UTRs
+    if (verifiedUtrsToCreate.length > 0) {
+      await VerifiedUtr.insertMany(verifiedUtrsToCreate);
+    }
 
     res.json({
       success: true,

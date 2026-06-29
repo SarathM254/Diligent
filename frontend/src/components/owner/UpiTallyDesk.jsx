@@ -20,6 +20,11 @@ export default function UpiTallyDesk() {
   const [uploadResult, setUploadResult] = useState(null);
   const [uploadError, setUploadError] = useState('');
 
+  // Old List Search State
+  const [utrSearchQuery, setUtrSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [searching, setSearching] = useState(false);
+
   useEffect(() => {
     fetchDashboardData();
   }, []);
@@ -119,6 +124,29 @@ export default function UpiTallyDesk() {
       </div>
     );
   }
+
+  const handleSearchOldList = async (e) => {
+    e.preventDefault();
+    if (utrSearchQuery.length !== 5) {
+      toast.error('Please enter exactly 5 digits');
+      return;
+    }
+    setSearching(true);
+    try {
+      const res = await apiClient.get(`/upi/owner/verified-utrs/search?utr=${utrSearchQuery}`);
+      setSearchResults(res.data.data);
+      if (res.data.count === 0) {
+        toast.error('No matching verified UTR found');
+      } else {
+        toast.success(`Found ${res.data.count} matches`);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || 'Search failed');
+    } finally {
+      setSearching(false);
+    }
+  };
 
   return (
     <div className="w-full min-h-screen bg-slate-50 flex flex-col justify-start mx-auto border-x border-slate-200/80 shadow-sm pb-8 font-sans">
@@ -253,10 +281,20 @@ export default function UpiTallyDesk() {
             
             {/* Custom Animated Toggle */}
             <div className="flex justify-center mb-6">
-              <div className="bg-slate-200/80 p-1.5 rounded-xl flex relative w-full max-w-xs shadow-inner">
+              <div className="bg-slate-200/80 p-1.5 rounded-xl flex relative w-full max-w-sm shadow-inner">
                 <div 
-                  className={`absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] bg-white rounded-lg shadow-sm transition-all duration-300 ease-in-out ${activeTab === 'previous' ? 'left-1.5' : 'left-[calc(50%+3px)]'}`}
+                  className={`absolute top-1.5 bottom-1.5 w-[calc(33.33%-4px)] bg-white rounded-lg shadow-sm transition-transform duration-300 ease-in-out ${
+                    activeTab === 'old' ? 'translate-x-0' : 
+                    activeTab === 'previous' ? 'translate-x-full' : 
+                    'translate-x-[200%]'
+                  }`}
                 />
+                <button 
+                  onClick={() => setActiveTab('old')}
+                  className={`flex-1 relative z-10 py-2.5 text-xs font-black tracking-widest uppercase rounded-lg transition-colors ${activeTab === 'old' ? 'text-indigo-700' : 'text-slate-500 hover:text-slate-700'}`}
+                >
+                  Old List
+                </button>
                 <button 
                   onClick={() => setActiveTab('previous')}
                   className={`flex-1 relative z-10 py-2.5 text-xs font-black tracking-widest uppercase rounded-lg transition-colors ${activeTab === 'previous' ? 'text-indigo-700' : 'text-slate-500 hover:text-slate-700'}`}
@@ -275,12 +313,57 @@ export default function UpiTallyDesk() {
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden relative min-h-[400px]">
               <div className="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                 <h2 className="text-base font-bold text-slate-800 tracking-tight">
-                  {activeTab === 'current' ? 'Current Cycle Payments' : 'Archived Payments'}
+                  {activeTab === 'current' ? 'Current Cycle Payments' : 
+                   activeTab === 'previous' ? 'Archived Payments' : 
+                   'Verified Failsafe (8 Days)'}
                 </h2>
               </div>
               
               <div className="p-4 space-y-4">
-                {payments.length === 0 ? (
+                {activeTab === 'old' ? (
+                  <div className="max-w-md mx-auto py-8">
+                    <form onSubmit={handleSearchOldList} className="space-y-6">
+                      <div>
+                        <label className="block text-sm font-bold text-slate-700 mb-2 tracking-tight text-center">Last 5 Digits of UTR</label>
+                        <div className="flex justify-center">
+                          <input 
+                            type="text" 
+                            maxLength={5}
+                            value={utrSearchQuery}
+                            onChange={(e) => setUtrSearchQuery(e.target.value.replace(/\D/g, ''))}
+                            placeholder="e.g. 12345"
+                            className="w-48 text-center text-xl tracking-widest font-mono font-bold text-slate-900 bg-slate-50/80 border-2 border-slate-200 rounded-xl py-3 focus:outline-hidden focus:border-indigo-500 focus:bg-white transition-all duration-150"
+                          />
+                        </div>
+                      </div>
+                      <button 
+                        type="submit"
+                        disabled={searching || utrSearchQuery.length !== 5}
+                        className={`w-full py-3.5 rounded-xl font-bold tracking-wide text-white transition-colors ${searching || utrSearchQuery.length !== 5 ? 'bg-indigo-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700 shadow-md'}`}
+                      >
+                        {searching ? 'Searching...' : 'Search'}
+                      </button>
+                    </form>
+
+                    {searchResults.length > 0 && (
+                      <div className="mt-8 space-y-3">
+                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Match Results</h3>
+                        {searchResults.map((res, i) => (
+                          <div key={res._id || i} className="bg-emerald-50 border border-emerald-100 p-4 rounded-xl flex justify-between items-center">
+                            <div>
+                              <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider mb-1">Bank Extract</p>
+                              <p className="text-sm font-medium text-slate-700">{res.statementDate}</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-xs font-bold text-slate-400">UTR: <span className="font-mono text-slate-600">{res.utrSnippet}</span></p>
+                              <p className="text-lg font-black text-emerald-700 mt-0.5">₹{res.amount.toLocaleString('en-IN')}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : payments.length === 0 ? (
                   <div className="p-8 text-center text-slate-400 font-medium text-sm">
                     No payments found.
                   </div>

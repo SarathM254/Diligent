@@ -11,8 +11,8 @@ export default function UpiPaymentEntry({ salesman }) {
   const [loading, setLoading] = useState(true);
 
   // Form state
-  const [utrDigits, setUtrDigits] = useState(['', '', '', '']);
-  const inputRefs = [React.useRef(), React.useRef(), React.useRef(), React.useRef()];
+  const [utrDigits, setUtrDigits] = useState(['', '', '', '', '']);
+  const inputRefs = [React.useRef(), React.useRef(), React.useRef(), React.useRef(), React.useRef()];
   const [amount, setAmount] = useState('');
   const [formError, setFormError] = useState('');
   const [formSuccess, setFormSuccess] = useState('');
@@ -94,8 +94,8 @@ export default function UpiPaymentEntry({ salesman }) {
     setFormSuccess('');
     
     const utr = utrDigits.join('');
-    if (utr.length !== 4) {
-      setFormError('Please enter all 4 digits of the UTR');
+    if (utr.length !== 5) {
+      setFormError('Please enter all 5 digits of the UTR');
       return;
     }
 
@@ -110,7 +110,7 @@ export default function UpiPaymentEntry({ salesman }) {
       });
       setFormSuccess('Payment submitted successfully!');
       toast.success('Draft added');
-      setUtrDigits(['', '', '', '']);
+      setUtrDigits(['', '', '', '', '']);
       setAmount('');
       fetchData(); // Refresh history
       
@@ -224,7 +224,7 @@ export default function UpiPaymentEntry({ salesman }) {
             
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2 tracking-tight">Last 4 Digits of UTR</label>
+                <label className="block text-sm font-bold text-slate-700 mb-2 tracking-tight">Last 5 Digits of UTR</label>
                 <div className="flex space-x-3 justify-between max-w-[240px]">
                   {utrDigits.map((digit, index) => (
                     <input

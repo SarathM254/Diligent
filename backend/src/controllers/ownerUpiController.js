@@ -1,5 +1,6 @@
 import Payment from '../models/UpiPayment.js';
 import User from '../models/User.js';
+import VerifiedUtr from '../models/VerifiedUtr.js';
 
 // @desc    Get all payments across all salesmen (with filtering)
 // @route   GET /api/upi/owner/payments
@@ -8,7 +9,7 @@ export const getAllPayments = async (req, res) => {
   const { status, paymentMode, salesmanId, startDate, endDate } = req.query;
 
   try {
-    let query = { isSubmittedToOwner: true };
+    let query = { isSubmittedToOwner: true, isDeepArchivedByOwner: { $ne: true } };
 
     if (status) query.status = status;
     if (paymentMode) query.paymentMode = paymentMode;
@@ -142,6 +143,13 @@ export const getDashboardStats = async (req, res) => {
 // @access  Private (Owner only)
 export const archiveAllPayments = async (req, res) => {
   try {
+    // Step 1: Push existing "Previous" cycle items into deep archive so they drop off the queue screen
+    await Payment.updateMany(
+      { isArchivedByOwner: true, isDeepArchivedByOwner: false },
+      { $set: { isDeepArchivedByOwner: true } }
+    );
+
+    // Step 2: Push current active cycle items into the "Previous" cycle
     const result = await Payment.updateMany(
       { isSubmittedToOwner: true, isArchivedByOwner: false },
       { $set: { isArchivedByOwner: true, archivedAt: new Date() } }
@@ -150,5 +158,24 @@ export const archiveAllPayments = async (req, res) => {
   } catch (error) {
     console.error('Archive Error:', error);
     res.status(500).json({ success: false, message: 'Server error archiving payments' });
+  }
+};
+
+// @desc    Search for a verified UTR in the failsafe 8-day storage
+// @route   GET /api/upi/owner/verified-utrs/search
+// @access  Private (Owner only)
+export const searchVerifiedUtrs = async (req, res) => {
+  const { utr } = req.query;
+  
+  if (!utr || utr.length !== 5) {
+    return res.status(400).json({ success: false, message: 'Please provide a valid 5-digit UTR snippet.' });
+  }
+
+  try {
+    const results = await VerifiedUtr.find({ utrSnippet: utr }).sort({ createdAt: -1 });
+    res.json({ success: true, count: results.length, data: results });
+  } catch (error) {
+    console.error('Search Verified UTRs Error:', error);
+    res.status(500).json({ success: false, message: 'Server error searching verified UTRs' });
   }
 };
