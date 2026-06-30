@@ -22,10 +22,11 @@ export default function SalesmanBillingScreen({ salesman }) {
     useEffect(() => {
         const fetchInventory = async () => {
             try {
-                const [cats, brnds, historyRes] = await Promise.all([
+                const [cats, brnds, historyRes, dateRes] = await Promise.all([
                     getCategories(), 
                     getBrands(),
-                    apiClient.get(`/bills/history/${salesman._id}`)
+                    apiClient.get(`/bills/history/${salesman._id}`),
+                    apiClient.get('/bills/global-date')
                 ]);
                 const structuredCats = cats.map(cat => ({
                     id: cat._id,
@@ -51,7 +52,9 @@ export default function SalesmanBillingScreen({ salesman }) {
                 reset(defaultVals);
 
                 const latestBill = historyRes.data[0];
-                if (latestBill && latestBill.status !== 'draft') {
+                const operationalDate = dateRes.data.operationalDate;
+
+                if (latestBill && latestBill.billingDate === operationalDate && latestBill.status !== 'draft') {
                     const formattedPayload = latestBill.items.map(item => ({
                         brandId: item.brandId,
                         brandName: item.brandName,
