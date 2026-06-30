@@ -87,7 +87,7 @@ export const verifyPaymentManual = async (req, res) => {
 // @access  Private (Owner only)
 export const getDashboardStats = async (req, res) => {
   try {
-    const allPayments = await Payment.find({ isSubmittedToOwner: true, isArchivedByOwner: false });
+    const allPayments = await Payment.find({ isSubmittedToOwner: true, isArchivedByOwner: { $ne: true } });
 
     const totalPayments = allPayments.length;
     const verifiedPayments = allPayments.filter(p => p.status === 'verified').length;
@@ -101,7 +101,7 @@ export const getDashboardStats = async (req, res) => {
 
     const salesmen = await User.find({ role: 'salesman' }).select('name');
     const salesmenStats = await Promise.all(salesmen.map(async (sm) => {
-      const smPayments = await Payment.find({ salesman: sm._id, isSubmittedToOwner: true, isArchivedByOwner: false });
+      const smPayments = await Payment.find({ salesman: sm._id, isSubmittedToOwner: true, isArchivedByOwner: { $ne: true } });
       const verifiedCash = smPayments
         .filter(p => p.paymentMode === 'cash' && p.status === 'verified')
         .reduce((sum, p) => sum + p.amount, 0);
@@ -145,13 +145,13 @@ export const archiveAllPayments = async (req, res) => {
   try {
     // Step 1: Push existing "Previous" cycle items into deep archive so they drop off the queue screen
     await Payment.updateMany(
-      { isArchivedByOwner: true, isDeepArchivedByOwner: false },
+      { isArchivedByOwner: true, isDeepArchivedByOwner: { $ne: true } },
       { $set: { isDeepArchivedByOwner: true } }
     );
 
     // Step 2: Push current active cycle items into the "Previous" cycle
     const result = await Payment.updateMany(
-      { isSubmittedToOwner: true, isArchivedByOwner: false },
+      { isSubmittedToOwner: true, isArchivedByOwner: { $ne: true } },
       { $set: { isArchivedByOwner: true, archivedAt: new Date() } }
     );
     res.json({ success: true, message: `Archived ${result.modifiedCount} payments.` });
