@@ -77,7 +77,7 @@ export default function UpiPaymentEntry({ salesman }) {
     newDigits[index] = value.substring(value.length - 1);
     setUtrDigits(newDigits);
     
-    if (value && index < 3) {
+    if (value && index < 4) {
       inputRefs[index + 1].current.focus();
     }
   };

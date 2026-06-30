@@ -15,8 +15,8 @@ export const submitPayment = async (req, res) => {
       if (!utr) {
         return res.status(400).json({ success: false, message: 'UTR number is required for UPI payments' });
       }
-      if (!/^\d{4}$/.test(utr)) {
-        return res.status(400).json({ success: false, message: 'UTR must be a 4-digit snippet' });
+      if (!/^\d{5}$/.test(utr)) {
+        return res.status(400).json({ success: false, message: 'UTR must be a 5-digit snippet' });
       }
 
       // Check if UTR is already registered globally
