@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../../api/apiClient';
-import { UploadCloud, FileText, CheckCircle, AlertTriangle, ChevronDown, ChevronUp, Activity } from 'lucide-react';
+import { UploadCloud, FileText, CheckCircle, AlertTriangle, ChevronDown, ChevronUp, Activity, Trash2, Edit2, X, Check } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function UpiTallyDesk() {
@@ -31,6 +31,11 @@ export default function UpiTallyDesk() {
   const [manualAmount, setManualAmount] = useState('');
   const [manualDate, setManualDate] = useState('');
   const [addingManual, setAddingManual] = useState(false);
+
+  // Inline Edit State
+  const [editingPaymentId, setEditingPaymentId] = useState(null);
+  const [editForm, setEditForm] = useState({ utr: '', amount: '' });
+  const [savingEdit, setSavingEdit] = useState(false);
 
   useEffect(() => {
     fetchDashboardData();
@@ -183,6 +188,46 @@ export default function UpiTallyDesk() {
       toast.error(err.response?.data?.message || 'Failed to add record');
     } finally {
       setAddingManual(false);
+    }
+  };
+
+  const handleDeleteErrorPayment = async (paymentId) => {
+    if (!window.confirm('Are you sure you want to delete this payment?')) return;
+    try {
+      await apiClient.delete(`/upi/owner/payments/${paymentId}`);
+      toast.success('Payment deleted successfully');
+      fetchDashboardData();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to delete payment');
+    }
+  };
+
+  const startEditing = (payment) => {
+    setEditingPaymentId(payment._id);
+    setEditForm({ 
+      utr: payment.utr || '', 
+      amount: payment.amount || '' 
+    });
+  };
+
+  const handleSaveEdit = async (paymentId) => {
+    if (editForm.utr && editForm.utr.length !== 5) {
+      toast.error('UTR must be 5 digits');
+      return;
+    }
+    setSavingEdit(true);
+    try {
+      await apiClient.put(`/upi/owner/payments/${paymentId}`, {
+        utr: editForm.utr,
+        amount: editForm.amount
+      });
+      toast.success('Payment updated successfully');
+      setEditingPaymentId(null);
+      fetchDashboardData();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to update payment');
+    } finally {
+      setSavingEdit(false);
     }
   };
 
@@ -545,10 +590,60 @@ export default function UpiTallyDesk() {
                                   <th className="p-3">UTR</th>
                                   <th className="p-3 text-right">Amount</th>
                                   <th className="p-3 text-center">Status</th>
+                                  <th className="p-3 text-right"></th>
                                 </tr>
                               </thead>
                               <tbody className="divide-y divide-slate-50">
-                                {group.payments.map((payment) => (
+                                {group.payments.map((payment) => {
+                                  const isError = ['mistake', 'missing', 'unreconciled'].includes(payment.status);
+                                  const isEditing = editingPaymentId === payment._id;
+
+                                  if (isEditing) {
+                                    return (
+                                      <tr key={payment._id} className="bg-indigo-50/50">
+                                        <td className="p-3">
+                                          <input
+                                            type="text"
+                                            maxLength={5}
+                                            value={editForm.utr}
+                                            onChange={(e) => setEditForm({ ...editForm, utr: e.target.value.replace(/\D/g, '') })}
+                                            placeholder="5-digit UTR"
+                                            className="w-24 px-2 py-1 text-sm font-mono font-bold border border-indigo-200 rounded focus:outline-hidden focus:border-indigo-500"
+                                          />
+                                        </td>
+                                        <td className="p-3 text-right">
+                                          <input
+                                            type="number"
+                                            value={editForm.amount}
+                                            onChange={(e) => setEditForm({ ...editForm, amount: e.target.value })}
+                                            placeholder="Amount"
+                                            className="w-24 px-2 py-1 text-sm font-bold text-right border border-indigo-200 rounded focus:outline-hidden focus:border-indigo-500"
+                                          />
+                                        </td>
+                                        <td className="p-3 text-center">
+                                          <span className="text-[10px] uppercase font-bold text-indigo-500">Editing</span>
+                                        </td>
+                                        <td className="p-3 text-right space-x-2">
+                                          <button 
+                                            onClick={() => setEditingPaymentId(null)}
+                                            className="p-1 text-slate-400 hover:text-slate-600 transition-colors"
+                                            disabled={savingEdit}
+                                          >
+                                            <X className="w-4 h-4" />
+                                          </button>
+                                          <button 
+                                            onClick={() => handleSaveEdit(payment._id)}
+                                            className="p-1 text-emerald-600 hover:text-emerald-700 transition-colors bg-emerald-100 rounded"
+                                            disabled={savingEdit}
+                                          >
+                                            <Check className="w-4 h-4" />
+                                          </button>
+                                        </td>
+                                      </tr>
+                                    );
+                                  }
+
+                                  return (
                                   <tr key={payment._id} className="hover:bg-slate-50/50 transition-colors">
                                     <td className="p-3 text-sm text-slate-600 font-mono">
                                       {payment.utr ? (
@@ -568,8 +663,28 @@ export default function UpiTallyDesk() {
                                     <td className="p-3 text-center">
                                       <StatusBadge status={payment.status} />
                                     </td>
+                                    <td className="p-3 text-right">
+                                      {isError && (
+                                        <div className="flex justify-end space-x-2 opacity-60 hover:opacity-100 transition-opacity">
+                                          <button 
+                                            onClick={() => startEditing(payment)}
+                                            className="p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                                            title="Edit Payment"
+                                          >
+                                            <Edit2 className="w-3.5 h-3.5" />
+                                          </button>
+                                          <button 
+                                            onClick={() => handleDeleteErrorPayment(payment._id)}
+                                            className="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                                            title="Delete Payment"
+                                          >
+                                            <Trash2 className="w-3.5 h-3.5" />
+                                          </button>
+                                        </div>
+                                      )}
+                                    </td>
                                   </tr>
-                                ))}
+                                )})}
                               </tbody>
                             </table>
                           </div>

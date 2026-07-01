@@ -45,8 +45,8 @@ export const verifyPaymentManual = async (req, res) => {
     }
 
     if (utr && payment.paymentMode === 'upi') {
-      if (!/^\d{12}$/.test(utr)) {
-        return res.status(400).json({ success: false, message: 'UTR must be a 12-digit number' });
+      if (!/^\d{5}$/.test(utr)) {
+        return res.status(400).json({ success: false, message: 'UTR must be a 5-digit snippet' });
       }
       
       // If UTR changed, check uniqueness
@@ -209,5 +209,63 @@ export const addManualVerifiedUtr = async (req, res) => {
   } catch (error) {
     console.error('Add Manual Verified UTR Error:', error);
     res.status(500).json({ success: false, message: 'Server error adding manual UTR record' });
+  }
+};
+
+// @desc    Owner deletes an error payment
+// @route   DELETE /api/upi/owner/payments/:id
+// @access  Private (Owner only)
+export const deletePaymentOwner = async (req, res) => {
+  try {
+    const payment = await Payment.findByIdAndDelete(req.params.id);
+    if (!payment) {
+      return res.status(404).json({ success: false, message: 'Payment not found' });
+    }
+    res.json({ success: true, message: 'Payment successfully deleted' });
+  } catch (error) {
+    console.error('Owner Delete Payment Error:', error);
+    res.status(500).json({ success: false, message: 'Server error deleting payment' });
+  }
+};
+
+// @desc    Owner edits an error payment
+// @route   PUT /api/upi/owner/payments/:id
+// @access  Private (Owner only)
+export const editPaymentOwner = async (req, res) => {
+  const { utr, amount } = req.body;
+  try {
+    const payment = await Payment.findById(req.params.id);
+    if (!payment) {
+      return res.status(404).json({ success: false, message: 'Payment not found' });
+    }
+
+    if (utr && payment.paymentMode === 'upi') {
+      if (!/^\d{5}$/.test(utr)) {
+        return res.status(400).json({ success: false, message: 'UTR must be a 5-digit snippet' });
+      }
+      
+      if (utr !== payment.utr) {
+        const utrExists = await Payment.findOne({ utr, _id: { $ne: payment._id } });
+        if (utrExists) {
+          return res.status(400).json({ success: false, message: 'This UTR is already registered under another payment' });
+        }
+        payment.utr = utr;
+      }
+    }
+
+    if (amount) {
+      payment.amount = Number(amount);
+    }
+
+    // Reset status to pending so it can be reconciled/verified again
+    payment.status = 'pending';
+    payment.actualBankAmount = undefined; // clear out any mistake tracking
+    
+    await payment.save();
+
+    res.json({ success: true, message: 'Payment updated successfully', data: payment });
+  } catch (error) {
+    console.error('Owner Edit Payment Error:', error);
+    res.status(500).json({ success: false, message: 'Server error editing payment' });
   }
 };
