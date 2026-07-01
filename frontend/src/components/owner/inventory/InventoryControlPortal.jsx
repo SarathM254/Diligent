@@ -271,7 +271,7 @@ export default function InventoryControlPortal() {
 
       {/* AI Processing Overlay */}
       {aiState === 'uploading' && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm rounded-2xl">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm">
           <div className="bg-white p-6 rounded-2xl shadow-xl flex flex-col items-center gap-y-4 max-w-[280px]">
             <div className="relative flex items-center justify-center w-16 h-16">
               <div className="absolute inset-0 rounded-full border-4 border-indigo-100"></div>
