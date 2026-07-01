@@ -257,8 +257,9 @@ export const editPaymentOwner = async (req, res) => {
       payment.amount = Number(amount);
     }
 
-    // Reset status to pending so it can be reconciled/verified again
-    payment.status = 'pending';
+    // Set status to verified since the owner is explicitly confirming this edit
+    payment.status = 'verified';
+    payment.verifiedAt = new Date();
     payment.actualBankAmount = undefined; // clear out any mistake tracking
     
     await payment.save();
