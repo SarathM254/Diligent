@@ -126,7 +126,10 @@ Example Output:
                     }
                 ]
             }
-        ]
+        ],
+        config: {
+            responseMimeType: "application/json"
+        }
     });
 
     let jsonString = response.text || "{ \"items\": [] }";
