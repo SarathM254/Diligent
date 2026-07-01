@@ -179,3 +179,35 @@ export const searchVerifiedUtrs = async (req, res) => {
     res.status(500).json({ success: false, message: 'Server error searching verified UTRs' });
   }
 };
+
+// @desc    Manually add a verified UTR record
+// @route   POST /api/upi/owner/verified-utrs/manual
+// @access  Private (Owner only)
+export const addManualVerifiedUtr = async (req, res) => {
+  const { utrSnippet, amount, statementDate } = req.body;
+  
+  if (!utrSnippet || utrSnippet.length !== 5) {
+    return res.status(400).json({ success: false, message: 'Please provide a valid 5-digit UTR snippet.' });
+  }
+  
+  if (!amount || isNaN(amount)) {
+    return res.status(400).json({ success: false, message: 'Please provide a valid amount.' });
+  }
+
+  if (!statementDate) {
+    return res.status(400).json({ success: false, message: 'Please provide a statement date.' });
+  }
+
+  try {
+    const newRecord = await VerifiedUtr.create({
+      utrSnippet,
+      amount: Number(amount),
+      statementDate
+    });
+    
+    res.status(201).json({ success: true, message: 'Manual record added successfully.', data: newRecord });
+  } catch (error) {
+    console.error('Add Manual Verified UTR Error:', error);
+    res.status(500).json({ success: false, message: 'Server error adding manual UTR record' });
+  }
+};

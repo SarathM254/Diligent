@@ -25,6 +25,13 @@ export default function UpiTallyDesk() {
   const [searchResults, setSearchResults] = useState([]);
   const [searching, setSearching] = useState(false);
 
+  // Manual Add State
+  const [showManual, setShowManual] = useState(false);
+  const [manualUtr, setManualUtr] = useState('');
+  const [manualAmount, setManualAmount] = useState('');
+  const [manualDate, setManualDate] = useState('');
+  const [addingManual, setAddingManual] = useState(false);
+
   useEffect(() => {
     fetchDashboardData();
   }, []);
@@ -145,6 +152,37 @@ export default function UpiTallyDesk() {
       toast.error(err.response?.data?.message || 'Search failed');
     } finally {
       setSearching(false);
+    }
+  };
+
+  const handleAddManual = async (e) => {
+    e.preventDefault();
+    if (manualUtr.length !== 5 || !manualAmount || !manualDate) {
+      toast.error('Please fill all fields correctly');
+      return;
+    }
+    setAddingManual(true);
+    try {
+      await apiClient.post('/upi/owner/verified-utrs/manual', {
+        utrSnippet: manualUtr,
+        amount: manualAmount,
+        statementDate: manualDate
+      });
+      toast.success('Manual record added successfully');
+      setManualUtr('');
+      setManualAmount('');
+      setManualDate('');
+      setShowManual(false);
+      // Auto-search for the newly added UTR to show it in results
+      setUtrSearchQuery(manualUtr);
+      
+      const res = await apiClient.get(`/upi/owner/verified-utrs/search?utr=${manualUtr}`);
+      setSearchResults(res.data.data);
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || 'Failed to add record');
+    } finally {
+      setAddingManual(false);
     }
   };
 
@@ -344,6 +382,61 @@ export default function UpiTallyDesk() {
                         {searching ? 'Searching...' : 'Search'}
                       </button>
                     </form>
+
+                    <div className="mt-4 text-center">
+                      <button 
+                        onClick={() => setShowManual(!showManual)}
+                        className="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-colors"
+                      >
+                        {showManual ? '- Cancel Manual Entry' : '+ Add Manual Record'}
+                      </button>
+                    </div>
+
+                    {showManual && (
+                      <form onSubmit={handleAddManual} className="mt-6 bg-slate-100 p-5 rounded-2xl border border-slate-200 space-y-4">
+                        <h3 className="text-sm font-bold text-slate-800 mb-2">Manual Bank Extract</h3>
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-600 mb-1">Date String (e.g., 15 Jun 2026)</label>
+                          <input 
+                            type="text" 
+                            required
+                            value={manualDate}
+                            onChange={(e) => setManualDate(e.target.value)}
+                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium focus:outline-hidden focus:border-indigo-500"
+                          />
+                        </div>
+                        <div className="flex space-x-3">
+                          <div className="flex-1">
+                            <label className="block text-xs font-semibold text-slate-600 mb-1">5-Digit UTR</label>
+                            <input 
+                              type="text" 
+                              maxLength={5}
+                              required
+                              value={manualUtr}
+                              onChange={(e) => setManualUtr(e.target.value.replace(/\D/g, ''))}
+                              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-mono font-bold focus:outline-hidden focus:border-indigo-500"
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <label className="block text-xs font-semibold text-slate-600 mb-1">Amount (₹)</label>
+                            <input 
+                              type="number" 
+                              required
+                              value={manualAmount}
+                              onChange={(e) => setManualAmount(e.target.value)}
+                              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-bold focus:outline-hidden focus:border-indigo-500"
+                            />
+                          </div>
+                        </div>
+                        <button 
+                          type="submit"
+                          disabled={addingManual || manualUtr.length !== 5 || !manualAmount || !manualDate}
+                          className={`w-full py-2.5 rounded-lg font-bold text-xs tracking-wide text-white transition-colors mt-2 ${addingManual || manualUtr.length !== 5 || !manualAmount || !manualDate ? 'bg-indigo-300 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'}`}
+                        >
+                          {addingManual ? 'Saving...' : 'Save Manual Record'}
+                        </button>
+                      </form>
+                    )}
 
                     {searchResults.length > 0 && (
                       <div className="mt-8 space-y-3">

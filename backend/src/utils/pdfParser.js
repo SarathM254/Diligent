@@ -54,10 +54,22 @@ export const parseSBIStatement = async (fileBuffer) => {
         const creditAmount = parseFloat(creditAmountStr);
         
         if (!isNaN(creditAmount) && creditAmount > 0) {
+          // Extract the date by looking backward from the UTR match index
+          const textBefore = fullText.substring(0, match.index);
+          const dateRegex = /\d{2}[-\/\s](?:[A-Za-z]{3}|\d{2})[-\/\s]\d{2,4}/g;
+          const dateMatches = [...textBefore.matchAll(dateRegex)];
+          
+          let txDate = "Unknown Date";
+          if (dateMatches.length > 0) {
+            txDate = dateMatches[dateMatches.length - 1][0];
+          } else {
+            txDate = new Date().toLocaleDateString('en-GB'); // Fallback to current date formatted as dd/mm/yyyy
+          }
+
           transactions.push({
             utr,
             amount: creditAmount,
-            date: new Date(),
+            date: txDate,
             rawLine: transactionTail.substring(0, 50) + "..."
           });
         } else {

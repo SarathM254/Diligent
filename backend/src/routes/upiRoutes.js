@@ -1,7 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import { submitPayment, getMyPayments, deletePayment, submitAllPayments } from '../controllers/salesmanUpiController.js';
-import { getAllPayments, verifyPaymentManual, getDashboardStats, archiveAllPayments, searchVerifiedUtrs } from '../controllers/ownerUpiController.js';
+import { getAllPayments, verifyPaymentManual, getDashboardStats, archiveAllPayments, searchVerifiedUtrs, addManualVerifiedUtr } from '../controllers/ownerUpiController.js';
 import { reconcileStatement, getStatementsHistory } from '../controllers/reconciliationController.js';
 
 // If Diligent has auth middleware, you would import it here.
@@ -25,6 +25,7 @@ router.put('/owner/payments/:id/verify', verifyOwner, verifyPaymentManual);
 router.get('/owner/dashboard/stats', verifyOwner, getDashboardStats);
 router.post('/owner/payments/archive', verifyOwner, archiveAllPayments);
 router.get('/owner/verified-utrs/search', verifyOwner, searchVerifiedUtrs);
+router.post('/owner/verified-utrs/manual', verifyOwner, addManualVerifiedUtr);
 
 // --- Reconciliation (Owner) ---
 router.post('/owner/reconciliation/upload', verifyOwner, upload.single('statement'), reconcileStatement);
