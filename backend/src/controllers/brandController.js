@@ -88,24 +88,71 @@ We have a specific database of active brands. Your job is to match the item name
 
 Here are the VALID database brands:
 [
-${brandListStr}
+\${brandListStr}
 ]
 
-CRITICAL RULES:
-1. ONLY return a raw JSON object. DO NOT wrap it in markdown \`\`\`json blocks.
-2. If you want to tell the user anything, say it in the "remarks" field. Do not include any extra text outside the JSON object.
-3. For each extracted item, try to find the closest matching name from the VALID database brands list.
-4. If you find a good match, add it to the "items" array like: { "brandId": "the-valid-id", "brandName": "the-valid-name", "quantity": number }
-5. If an item on the invoice absolutely does not match anything in our valid list, ignore it.
-6. "quantity" must be a number representing the amount delivered.
+CRITICAL MAPPING DICTIONARY:
+The invoice names are often cryptic. Use this dictionary to map them intelligently to our valid database names. Invoice names might vary slightly, so apply fuzzy logic based on these examples:
+
+*American Club / Wills / Navycut*
+- "AM CLUB C FRTY" -> Club
+- "AMERICAN CLUB CLOVE" -> Clove
+- "AMERICAN CLUB SMASH" -> Smash
+- "AMERICAN CLUB FRESH" -> Club(Fresh)
+- "AMERICAN CLUB FRUITY LONGS" -> Club(longs)
+- "FLAKE PREM" -> Wills Flake
+- "DUKE SPECIAL" -> Duke
+- "NC DLX" -> Navycut
+
+*Gold Flake Kings & Filters*
+- "GFK RED" -> King Red
+- "GFK BLUE" -> King Blue
+- "GOLD FL FT" -> GF Filter
+- "GOLD FLAKE DLX" -> GF Deluxe
+- "GF INDIE MINT" -> Indi Mint
+- "GFK MIXPOD" -> Mixpod
+- "GFLAKE CENTURY" -> Century
+- "GF NEO SMART" -> Twinpod
+
+*Gold Flake Slims / Sleek*
+- "GOLD FLAKE SLK BLUE" -> Slk(Blue)
+- "GOLD FLAKE SLK RED" -> Slk(Red)
+- "GOLDFLAKE FK SOCIAL 2-POD" -> Two Pod
+- "GOLDFLAKE FK SOCIAL RED" -> Social Red
+- "GOLDFLAKE SLK 16CP" -> Sleek
+
+*Classic Series*
+- "CLASSIC BT" -> Milds
+- "CLASSIC ICE BURST" -> Ice
+- "CLASSIC DOUBLE BURST" -> Double Burst
+- "CLASSIC CONNECT" -> Connect
+- "CLASSIC REFR TASTE" -> Refresh
+- "CLVERVE" -> Verve
+
+*20s Packs vs 10s Packs*
+If the invoice says '20RC' or '20FS' or '20BE', it's a 20s pack. Use the (20) variant if it exists (e.g., 'Milds(20)', 'Ice(20)', 'Double Burst(20)', 'Refresh(20)', 'Red(20)').
+- "B&H GOLD" -> B&H
+- "IKINGS" -> India King
+
+*Others / Rare*
+- "BERKELEY" -> Berkeley
+- "FL LIBERTY" -> Liberty
+- "PLAYER'S FRUITY COOL" -> Players Fruit
+- "WAVE COOL MINT" -> Wave Cool
+- "WAVE FRUIT MINT" -> Wave Fruit
+
+RULES:
+1. ONLY return a JSON object containing "items" and "remarks".
+2. If an item on the invoice feels unfamiliar or doesn't match our valid database list, DO NOT include it in the "items" array. Instead, mention it as a sentence in the "remarks" field (e.g. "Skipped unfamiliar item: [Name]").
+3. For each extracted item, find the closest matching name from the VALID database brands list based on the dictionary.
+4. "quantity" must be a number.
 
 Example Output:
 {
   "items": [
-    { "brandId": "60d5ec...", "brandName": "Gold Flake King", "quantity": 10 },
-    { "brandId": "60d5ed...", "brandName": "Classic Milds", "quantity": 5 }
+    { "brandId": "60d5ec...", "brandName": "King Red", "quantity": 10 }
   ],
-  "remarks": "I noticed some items were illegible."
+  "remarks": "Skipped unfamiliar item: NEW TEST BRAND 10s"
 }
     `;
 
