@@ -31,6 +31,14 @@ const paymentSchema = new mongoose.Schema(
       type: Number,
       default: 0
     },
+    foodAmount: {
+      type: Number,
+      default: 0
+    },
+    cigarettesAmount: {
+      type: Number,
+      default: 0
+    },
     totalPayment: {
       type: Number,
       default: 0
@@ -64,6 +72,7 @@ paymentSchema.pre("save", function () {
     ((cb[10] || 0) * 10) +
     (this.changeAmount || 0);
 
+  this.cigarettesAmount = this.totalHandCash - (this.foodAmount || 0) + (this.phonePeAmount || 0);
   this.totalPayment = this.totalHandCash + (this.phonePeAmount || 0);
 });
 

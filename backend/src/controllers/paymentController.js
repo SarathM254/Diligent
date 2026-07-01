@@ -5,7 +5,7 @@ import AppSettings from "../models/AppSettings.js";
 
 export const submitDailyPayment = async (req, res) => {
   try {
-    let { cashBreakdown, phonePeAmount, changeAmount, salesmanId } = req.body;
+    let { cashBreakdown, phonePeAmount, changeAmount, foodAmount, salesmanId } = req.body;
 
     const config = await AppSettings.findOne({ key: "global_config" });
     const paymentDate = config ? config.operationalDate : new Date().toISOString().split('T')[0];
@@ -21,6 +21,7 @@ export const submitDailyPayment = async (req, res) => {
     payment.cashBreakdown = cashBreakdown || { 500: 0, 200: 0, 100: 0, 50: 0, 20: 0, 10: 0 };
     payment.phonePeAmount = Number(phonePeAmount || 0);
     payment.changeAmount = Number(changeAmount || 0);
+    payment.foodAmount = Number(foodAmount || 0);
     payment.status = "unverified";
 
     await payment.save();
@@ -46,13 +47,13 @@ export const verifyPaymentByOwner = async (req, res) => {
     const salesman = await User.findById(payment.salesmanId);
     if (salesman) {
       const oldBF = salesman.broughtForwardDebt;
-      salesman.broughtForwardDebt -= payment.totalPayment;
+      salesman.broughtForwardDebt -= payment.cigarettesAmount;
       await salesman.save();
 
       await LedgerTransaction.create({
         salesmanId: salesman._id,
         type: "cash_payment_clearance",
-        amount: payment.totalPayment,
+        amount: payment.cigarettesAmount,
         description: `Cash handover verification finalized for collection date: ${payment.paymentDate}`,
         previousBF: oldBF,
         newBF: salesman.broughtForwardDebt

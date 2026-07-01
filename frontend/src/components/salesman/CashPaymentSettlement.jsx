@@ -15,7 +15,8 @@ export default function CashPaymentSettlement({ salesman, onSettlementSuccess })
     defaultValues: {
       cashBreakdown: DENOMINATIONS.reduce((acc, d) => ({ ...acc, [d]: "" }), {}),
       changeAmount: "",
-      phonePeAmount: ""
+      phonePeAmount: "",
+      foodAmount: ""
     }
   });
 
@@ -40,7 +41,9 @@ export default function CashPaymentSettlement({ salesman, onSettlementSuccess })
   }, parseInt(formValues.changeAmount || 0, 10));
 
   const phonePeAmountNum = parseFloat(formValues.phonePeAmount || 0);
-  const totalPayment = totalHandCash + (isNaN(phonePeAmountNum) ? 0 : phonePeAmountNum);
+  const foodAmountNum = parseFloat(formValues.foodAmount || 0);
+  const cigarettesClearance = totalHandCash - (isNaN(foodAmountNum) ? 0 : foodAmountNum) + (isNaN(phonePeAmountNum) ? 0 : phonePeAmountNum);
+  const totalPayment = cigarettesClearance + (isNaN(foodAmountNum) ? 0 : foodAmountNum);
 
   /*
     DIGITAL CURRENCY SANITIZATION:
@@ -75,7 +78,8 @@ export default function CashPaymentSettlement({ salesman, onSettlementSuccess })
         return acc;
       }, {}),
       changeAmount: parseInt(data.changeAmount || 0, 10),
-      phonePeAmount: parseFloat(data.phonePeAmount || 0)
+      phonePeAmount: parseFloat(data.phonePeAmount || 0),
+      foodAmount: parseFloat(data.foodAmount || 0)
     };
 
     try {
@@ -170,6 +174,38 @@ export default function CashPaymentSettlement({ salesman, onSettlementSuccess })
           </div>
         </div>
 
+        {/* Food Transfer Segment Layout */}
+        <div>
+          <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2.5 flex items-center gap-x-2">
+            <svg className="w-4 h-4 text-grey-500" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+              <path d="M10 7v10.9" />
+              <path d="M14 6.1V17" />
+              <path d="M16 7V3a1 1 0 0 1 1.707-.707 2.5 2.5 0 0 0 2.152.717 1 1 0 0 1 1.131 1.131 2.5 2.5 0 0 0 .717 2.152A1 1 0 0 1 21 8h-4" />
+              <path d="M16.536 7.465a5 5 0 0 0-7.072 0l-2 2a5 5 0 0 0 0 7.07 5 5 0 0 0 7.072 0l2-2a5 5 0 0 0 0-7.07" />
+              <path d="M8 17v4a1 1 0 0 1-1.707.707 2.5 2.5 0 0 0-2.152-.717 1 1 0 0 1-1.131-1.131 2.5 2.5 0 0 0-.717-2.152A1 1 0 0 1 3 16h4" />
+            </svg>
+            Food Collection
+          </h3>
+          <div className="relative flex items-center">
+            <span className="absolute left-3.5 text-base font-bold text-slate-400 select-none pointer-events-none">₹</span>
+            <input 
+              type="number"
+              step="any"
+              inputMode="decimal"
+              placeholder="0.00"
+              onBlur={(e) => {
+                let val = e.target.value.trim();
+                if (!val) return;
+                if (val.startsWith('.')) val = '0' + val;
+                const num = parseFloat(val);
+                if (!isNaN(num)) setValue('foodAmount', parseFloat(num.toFixed(2)).toString());
+              }}
+              className="w-full pl-8 pr-4 py-3 text-base font-bold text-slate-800 border border-slate-200 rounded-xl focus:outline-hidden focus:border-indigo-500 transition-all duration-150 shadow-xs placeholder:text-slate-300"
+              {...register('foodAmount')}
+            />
+          </div>
+        </div>
+
         {/* PhonePe Digital Transfer Segment Layout */}
         <div>
           <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2.5 flex items-center gap-x-2">
@@ -196,9 +232,13 @@ export default function CashPaymentSettlement({ salesman, onSettlementSuccess })
 
       {/* Persistent Grand Total & Submit Block */}
       <div className="p-4 border-t border-slate-100 bg-slate-50/50">
+        <div className="flex justify-between items-center mb-1 px-1.5">
+          <span className="text-slate-400 font-bold uppercase tracking-wider text-[11px]">Cigarettes Clearance</span>
+          <span className="text-xl font-black text-slate-900 tracking-tight">₹{cigarettesClearance.toLocaleString('en-IN')}</span>
+        </div>
         <div className="flex justify-between items-center mb-4 px-1.5">
-          <span className="text-slate-400 font-bold uppercase tracking-wider text-[11px]">Total Bag Clearance</span>
-          <span className="text-2xl font-black text-slate-900 tracking-tight">₹{totalPayment.toLocaleString('en-IN')}</span>
+          <span className="text-slate-400 font-bold uppercase tracking-wider text-[11px]">Food Clearance</span>
+          <span className="text-xl font-black text-slate-900 tracking-tight">₹{foodAmountNum.toLocaleString('en-IN')}</span>
         </div>
         <button 
           type="button"
