@@ -131,7 +131,7 @@ The invoice names are often cryptic. Use this dictionary to map them intelligent
 - "CLVERVE" -> Verve
 
 *20s Packs vs 10s Packs*
-If the invoice says '20RC' or '20FS' or '20BE', it's a 20s pack. Use the (20) variant if it exists (e.g., 'Milds(20)', 'Ice(20)', 'Double Burst(20)', 'Refresh(20)', 'Red(20)').
+If the invoice says '20RC' or '20FS' or '20BE', it's a 20s pack. Use the (20) variant ONLY IF it exists in the valid database list (e.g., 'Milds(20)'). NOTE: Some brands like 'Connect' do NOT have a (20) variant in the valid list. For those, if the invoice says 'Connect 20BE', just map it directly to 'Connect' without adding (20).
 - "B&H GOLD" -> B&H
 - "IKINGS" -> India King
 
@@ -159,7 +159,7 @@ Example Output:
     `;
 
     const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3.0-flash',
         contents: [
             {
                 role: 'user',
