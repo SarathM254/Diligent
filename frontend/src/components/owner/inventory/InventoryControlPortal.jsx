@@ -250,7 +250,7 @@ export default function InventoryControlPortal() {
               <span>Invoice</span>
             </div>
             <span className="inline-flex items-center rounded-md bg-indigo-50 px-2 py-0.5 text-[9px] font-bold text-indigo-700 ring-1 ring-inset ring-indigo-700/20 uppercase tracking-widest">
-              Gemini 3.0 Flash
+              Gemini 2.5 Flash
             </span>
           </div>
         </button>
@@ -282,7 +282,7 @@ export default function InventoryControlPortal() {
             </div>
             <div className="text-center">
               <h3 className="text-base font-bold text-slate-900 tracking-tight">AI is analyzing the invoice...</h3>
-              <p className="text-xs text-slate-500 mt-1 font-medium">Extracting brand data via Gemini 3.0 Flash</p>
+              <p className="text-xs text-slate-500 mt-1 font-medium">Extracting brand data via Gemini 2.5 Flash</p>
             </div>
           </div>
         </div>
