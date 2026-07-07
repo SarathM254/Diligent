@@ -1,0 +1,21 @@
+{
+  "short_name": "Diligent",
+  "name": "Diligent B2B Portal",
+  "icons": [
+    {
+      "src": "/Dili.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/Dili.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#f8fafc",
+  "display": "standalone",
+  "theme_color": "#4f46e5",
+  "orientation": "portrait"
+}
