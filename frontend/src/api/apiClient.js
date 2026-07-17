@@ -29,14 +29,20 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-      // Handle unauthorized access (e.g., redirect to login, clear state)
-      console.error('Unauthorized request. Redirecting or clearing session...');
+    // Only logout on strict 401 Unauthorized (Expired or invalid token)
+    // We remove 403 from this check so that WAF blocks or permission errors don't nuke the session
+    if (error.response && error.response.status === 401) {
+      console.error('Unauthorized request. Token expired. Clearing session...');
       localStorage.removeItem('session_token');
       localStorage.removeItem('session_role');
       localStorage.removeItem('session_user');
-      window.location.reload();
+      // Only reload if we actually had a token (prevents infinite reload loops on login screen)
+      if (localStorage.getItem('session_token')) {
+         window.location.reload();
+      }
     }
+    
+    // If error.response is undefined, it's a pure network drop. Do nothing, let the component handle it.
     return Promise.reject(error);
   }
 );
