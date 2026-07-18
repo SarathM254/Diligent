@@ -19,8 +19,9 @@ export const submitPayment = async (req, res) => {
         return res.status(400).json({ success: false, message: 'UTR must be a 5-digit snippet' });
       }
 
-      // Check if UTR is already registered globally
-      const utrExists = await Payment.findOne({ utr });
+      // Check if UTR is already registered globally within the last 4 days
+      const fourDaysAgo = new Date(Date.now() - 4 * 24 * 60 * 60 * 1000);
+      const utrExists = await Payment.findOne({ utr, createdAt: { $gte: fourDaysAgo } });
       if (utrExists) {
         return res.status(400).json({ success: false, message: 'This UTR is already active in the system.' });
       }

@@ -49,9 +49,10 @@ export const verifyPaymentManual = async (req, res) => {
         return res.status(400).json({ success: false, message: 'UTR must be a 5-digit snippet' });
       }
       
-      // If UTR changed, check uniqueness
+      // If UTR changed, check uniqueness within last 4 days
       if (payment.utr !== utr) {
-        const utrExists = await Payment.findOne({ utr, _id: { $ne: payment._id } });
+        const fourDaysAgo = new Date(Date.now() - 4 * 24 * 60 * 60 * 1000);
+        const utrExists = await Payment.findOne({ utr, _id: { $ne: payment._id }, createdAt: { $gte: fourDaysAgo } });
         if (utrExists) {
           return res.status(400).json({ success: false, message: 'This UTR is already registered under another payment' });
         }
@@ -62,6 +63,16 @@ export const verifyPaymentManual = async (req, res) => {
     payment.status = status || 'verified';
     if (payment.status === 'verified') {
       payment.verifiedAt = new Date();
+      if (payment.paymentMode === 'upi' && payment.utr) {
+        const existingVerified = await VerifiedUtr.findOne({ utrSnippet: payment.utr, amount: payment.amount });
+        if (!existingVerified) {
+          await VerifiedUtr.create({
+            utrSnippet: payment.utr,
+            amount: payment.amount,
+            statementDate: new Date().toISOString().split('T')[0]
+          });
+        }
+      }
     } else {
       payment.verifiedAt = undefined;
     }
@@ -245,7 +256,8 @@ export const editPaymentOwner = async (req, res) => {
       }
       
       if (utr !== payment.utr) {
-        const utrExists = await Payment.findOne({ utr, _id: { $ne: payment._id } });
+        const fourDaysAgo = new Date(Date.now() - 4 * 24 * 60 * 60 * 1000);
+        const utrExists = await Payment.findOne({ utr, _id: { $ne: payment._id }, createdAt: { $gte: fourDaysAgo } });
         if (utrExists) {
           return res.status(400).json({ success: false, message: 'This UTR is already registered under another payment' });
         }
@@ -261,6 +273,17 @@ export const editPaymentOwner = async (req, res) => {
     payment.status = 'verified';
     payment.verifiedAt = new Date();
     payment.actualBankAmount = undefined; // clear out any mistake tracking
+    
+    if (payment.paymentMode === 'upi' && payment.utr) {
+      const existingVerified = await VerifiedUtr.findOne({ utrSnippet: payment.utr, amount: payment.amount });
+      if (!existingVerified) {
+        await VerifiedUtr.create({
+          utrSnippet: payment.utr,
+          amount: payment.amount,
+          statementDate: new Date().toISOString().split('T')[0]
+        });
+      }
+    }
     
     await payment.save();
 

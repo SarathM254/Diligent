@@ -61,5 +61,8 @@ const upiPaymentSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
+// Auto-delete records 4 days after they are created to prevent UTR clash in the long term
+upiPaymentSchema.index({ createdAt: 1 }, { expireAfterSeconds: 4 * 24 * 60 * 60 });
+
 const UpiPayment = mongoose.model('UpiPayment', upiPaymentSchema);
 export default UpiPayment;
