@@ -18,7 +18,7 @@ export const verifyOwnerPIN = async (req, res) => {
       const token = jwt.sign(
         { role: 'owner' },
         process.env.JWT_SECRET || 'secret',
-        { expiresIn: '12h' } // Token valid for 12 hours (Shared PC protection)
+        { expiresIn: '100d' } // Token valid for 100 days since PIN wall protects daily access
       );
       return res.status(200).json({ success: true, token });
     } else {
@@ -76,7 +76,7 @@ export const googleLogin = async (req, res) => {
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET || 'secret',
-      { expiresIn: user.role === 'salesman' ? '100d' : '12h' }
+      { expiresIn: '100d' }
     );
 
     return res.status(200).json({

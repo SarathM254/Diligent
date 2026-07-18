@@ -33,12 +33,15 @@ apiClient.interceptors.response.use(
     // We remove 403 from this check so that WAF blocks or permission errors don't nuke the session
     if (error.response && error.response.status === 401) {
       console.error('Unauthorized request. Token expired. Clearing session...');
+      const hadToken = !!localStorage.getItem('session_token');
+      
       localStorage.removeItem('session_token');
       localStorage.removeItem('session_role');
       localStorage.removeItem('session_user');
-      // Only reload if we actually had a token (prevents infinite reload loops on login screen)
-      if (localStorage.getItem('session_token')) {
-         window.location.reload();
+      
+      // Only redirect if we actually had a token (prevents infinite loops on login screen)
+      if (hadToken) {
+         window.location.href = '/';
       }
     }
     
