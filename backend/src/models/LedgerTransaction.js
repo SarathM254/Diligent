@@ -34,5 +34,8 @@ const ledgerTransactionSchema = new mongoose.Schema(
 
 ledgerTransactionSchema.index({ salesmanId: 1, createdAt: -1 });
 
+// Auto-delete records 20 days after they are created
+ledgerTransactionSchema.index({ createdAt: 1 }, { expireAfterSeconds: 20 * 24 * 60 * 60 });
+
 const LedgerTransaction = mongoose.model("LedgerTransaction", ledgerTransactionSchema);
 export default LedgerTransaction;

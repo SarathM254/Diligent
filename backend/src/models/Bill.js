@@ -63,6 +63,9 @@ billSchema.index({ salesmanId: 1, billingDate: 1 }, { unique: true });
 billSchema.index({ salesmanId: 1, billingDate: -1 });
 billSchema.index({ status: 1, billingDate: 1 });
 
+// Auto-delete records 20 days after they are created
+billSchema.index({ createdAt: 1 }, { expireAfterSeconds: 20 * 24 * 60 * 60 });
+
 // Pre-save middleware: runs automatically before .save() or .create() executes
 billSchema.pre("save", function () {
   // 'this' points directly to the active Bill document being saved

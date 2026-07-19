@@ -61,6 +61,9 @@ const paymentSchema = new mongoose.Schema(
 paymentSchema.index({ salesmanId: 1, paymentDate: 1 }, { unique: true });
 paymentSchema.index({ status: 1 });
 
+// Auto-delete records 20 days after they are created
+paymentSchema.index({ createdAt: 1 }, { expireAfterSeconds: 20 * 24 * 60 * 60 });
+
 paymentSchema.pre("save", function () {
   const cb = this.cashBreakdown;
   this.totalHandCash = 
